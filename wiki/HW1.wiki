@@ -1,0 +1,10 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+26 unit test cases add for homework 1
+
+
+= Details =
+
+Unit tests are in PhaseOneStateTest.java, PhaseTwoStateTest.java, PhaseThreeStateTest.java.
