@@ -38,7 +38,7 @@ public class Game {
 			throw new InvalidPlacementException("Phase 1 has ended!");
 		}
 		board.placeMan(color, x, y);
-		if (checkNewMill(x, y)){
+		if (checkNewMill(color, x, y)){
 			removalTurn = color;
 		}
 		if (color == Color.BLACK) blackUnplacedMen--;
@@ -61,7 +61,7 @@ public class Game {
 	public void printCurrentBoard(){
 		
 	}
-	private boolean checkNewMill(int x, int y){
+	private boolean checkNewMill(Color color, int x, int y){
 		boolean newMill = false;
 		return newMill;
 	}
