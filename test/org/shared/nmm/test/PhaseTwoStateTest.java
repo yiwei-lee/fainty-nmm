@@ -23,7 +23,7 @@ public class PhaseTwoStateTest {
 			           0,0,0,0,0,0,0};
 		Game game = new Game(board, Color.WHITE, 1);
 		game.placeMan(Color.WHITE, 4, 4);
-		assertEquals("Into phase 2.", 1, game.getPhase());
+		assertEquals("Into phase 2.", 2, game.getPhase());
 	}
 	//#14
 	@Test
@@ -36,9 +36,10 @@ public class PhaseTwoStateTest {
 			           0,0,0,0,0,0,0,
 			           0,0,0,0,0,0,0};
 		Game game = new Game(board, Color.BLACK, 2);
-		assertEquals("Black's turn.", Color.BLACK, game.getTurn());
-		game.moveMan(Color.BLACK, 2, 2, 2, 1);
-		assertEquals("White's turn.", Color.WHITE, game.getTurn());
+		assertEquals("Black has a man in (4,3).", Color.BLACK, game.getMan(4,3));
+		game.moveMan(Color.BLACK, 4, 3, 5, 3);
+		assertEquals("Black's man moved to (5,3).", Color.BLACK, game.getMan(5,3));
+		assertEquals("And is no longer in (4,3).", null, game.getMan(4,3));
 	}
 	//#15
 	@Test(expected = InvalidMovementException.class)
@@ -92,11 +93,11 @@ public class PhaseTwoStateTest {
 			           0,0,0,0,0,0,0,
 			           0,0,0,0,0,0,0};
 		Game game = new Game(board, Color.BLACK, 2);
-		game.moveMan(Color.BLACK, 3, 4, 3, 5);
-		game.moveMan(Color.BLACK, 3, 5, 3, 6);
+		game.moveMan(Color.BLACK, 4, 3, 5, 3);
+		game.moveMan(Color.BLACK, 5, 3, 6, 3);
 	}
 	//#19
-	@Test(expected = WrongTurnException.class)
+	@Test(expected = InvalidMovementException.class)
 	public void emptyMovement() throws WrongTurnException, InvalidMovementException{
 		int board[] = {1,0,0,2,0,0,1,
 			           0,2,0,1,0,2,0,
@@ -106,7 +107,7 @@ public class PhaseTwoStateTest {
 			           0,0,0,0,0,0,0,
 			           0,0,0,0,0,0,0};
 		Game game = new Game(board, Color.BLACK, 2);
-		game.moveMan(Color.BLACK, 3, 5, 3, 6);
+		game.moveMan(Color.BLACK, 5, 3, 6, 3);
 	}
 	//#20
 	@Test
@@ -119,7 +120,7 @@ public class PhaseTwoStateTest {
 				       0,0,0,0,0,0,0,
 				       0,0,0,0,0,0,1};
 		Game game = new Game(board, Color.BLACK, 2);
-		game.moveMan(Color.BLACK, 3, 4, 4, 4);
+		game.moveMan(Color.BLACK, 4, 3, 4, 4);
 		assertEquals("Black's turn to removl.", Color.BLACK, game.getRemovalTurn());
 		game.removeMan(3, 0);
 		assertEquals("White's turn to move.", Color.WHITE, game.getTurn());
@@ -135,7 +136,7 @@ public class PhaseTwoStateTest {
 				       0,0,0,0,0,0,0,
 				       0,0,0,0,0,0,1};
 		Game game = new Game(board, Color.BLACK, 2);
-		game.moveMan(Color.BLACK, 3, 4, 4, 4);
-		game.moveMan(Color.WHITE, 0, 3, 0, 6);
+		game.moveMan(Color.BLACK, 4, 3, 4, 4);
+		game.moveMan(Color.WHITE, 3, 0, 6, 0);
 	}
 }

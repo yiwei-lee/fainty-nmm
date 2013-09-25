@@ -15,7 +15,7 @@ public class PhaseOneStateTest {
 	public void toPlaceMan() throws InvalidPlacementException, WrongTurnException{
 		Game game = new Game(Color.BLACK);
 		assertEquals("Now black's turn.", Color.BLACK, game.getTurn());
-		game.placeMan(Color.BLACK, 3, 3);
+		game.placeMan(Color.BLACK, 0, 0);
 		assertEquals("Now white's turn.", Color.WHITE, game.getTurn());
 	}
 	//#1
@@ -38,11 +38,12 @@ public class PhaseOneStateTest {
 				       0,2,0,1,0,2,0,
 				       0,0,1,2,1,0,0,
 				       2,1,2,0,1,2,1,
-				       0,0,2,1,2,0,0,
+				       0,0,2,0,2,0,0,
 				       0,0,0,0,0,0,0,
 				       0,0,0,0,0,0,0};
 		Game game = new Game(board, Color.BLACK, 1);
-		game.placeMan(Color.BLACK, 5, 1);
+		game.placeMan(Color.BLACK, 4, 3);
+		game.placeMan(Color.WHITE, 6, 0);
 	}
 	//#4
 	@Test(expected = WrongTurnException.class)
@@ -62,7 +63,7 @@ public class PhaseOneStateTest {
 					   0,0,0,0,0,0,0,
 					   0,0,0,0,0,0,0};
 		Game game = new Game(board, Color.BLACK, 1);
-		game.placeMan(Color.BLACK, 6, 0);
+		game.placeMan(Color.BLACK, 0, 6);
 		assertEquals("Black's turn to removl.", Color.BLACK, game.getRemovalTurn());
 	}
 	//#6
@@ -144,7 +145,7 @@ public class PhaseOneStateTest {
 		Game game = new Game(board, Color.WHITE, 1);
 		game.placeMan(Color.WHITE, 1, 5);
 		assertEquals("White's turn to removl.", Color.WHITE, game.getRemovalTurn());
-		game.removeMan(1,1);
+		game.removeMan(0,0);
 		assertEquals("White's removal completed.", null, game.getRemovalTurn());
 		assertEquals("Now black's turn.", Color.BLACK, game.getTurn());
 	}

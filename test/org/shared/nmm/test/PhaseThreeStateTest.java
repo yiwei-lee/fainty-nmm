@@ -20,7 +20,7 @@ public class PhaseThreeStateTest {
 				       0,0,0,0,0,0,0,
 				       0,0,0,0,0,0,1};
 		Game game = new Game(board, Color.BLACK, 2);
-		game.moveMan(Color.BLACK, 3, 4, 4, 4);
+		game.moveMan(Color.BLACK, 4, 3, 4, 4);
 		game.removeMan(3, 0);
 		assertEquals("Into phase 3.", 3, game.getPhase());
 	}
@@ -35,7 +35,7 @@ public class PhaseThreeStateTest {
 			           0,0,0,0,0,0,0,
 			           0,0,0,0,0,0,1};
 		Game game = new Game(board, Color.WHITE, 3);
-		game.moveMan(Color.WHITE, 1, 1, 1, 5);
+		game.flyMan(Color.WHITE, 1, 1, 1, 5);
 		assertEquals("Black's turn to move.", Color.BLACK, game.getTurn());
 	}
 	//#24
@@ -49,7 +49,7 @@ public class PhaseThreeStateTest {
 			           0,0,0,0,0,0,0,
 			           0,0,0,0,0,0,1};
 		Game game = new Game(board, Color.BLACK, 3);
-		game.moveMan(Color.BLACK, 0, 0, 3, 6);
+		game.flyMan(Color.BLACK, 0, 0, 3, 6);
 	}
 	//#25
 	@Test
@@ -62,8 +62,8 @@ public class PhaseThreeStateTest {
 			           0,0,0,0,0,0,0,
 			           0,0,0,0,0,0,1};
 		Game game = new Game(board, Color.BLACK, 3);
-		game.moveMan(Color.BLACK, 5, 3, 6, 3);
-		game.removeMan(3, 0);
+		game.moveMan(Color.BLACK, 3, 5, 3, 4);
+		game.removeMan(0, 3);
 		assertEquals("Black is the winner.", Color.BLACK, game.getWinner());
 	}
 }
