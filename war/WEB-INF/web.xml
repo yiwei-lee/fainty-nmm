@@ -18,7 +18,7 @@
   
   <!-- Default page to serve -->
   <welcome-file-list>
-    <welcome-file>FaintyNMM.html</welcome-file>
+    <welcome-file>fainty-nmm.html</welcome-file>
   </welcome-file-list>
 
 </web-app>
