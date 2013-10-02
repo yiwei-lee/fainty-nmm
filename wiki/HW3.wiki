@@ -2,7 +2,7 @@
 
 = Introduction =
 
-UI added, and deployed to [http://1.faintynmm.appspot.com/ AppEngine].
+UI added, and deployed to [1.fainty-nmm.appspot.com AppEngine].
 
 
 = Details =
