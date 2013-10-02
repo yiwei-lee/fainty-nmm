@@ -1,0 +1,12 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+UI added, and deployed to [http://1.faintynmm.appspot.com/ AppEngine].
+
+
+= Details =
+
+UI added: [https://code.google.com/p/fainty-nmm/source/browse/src/com/google/gwt/faintynmm/client/ui/Graphics.java Graphics.java] [https://code.google.com/p/fainty-nmm/source/browse/src/com/google/gwt/faintynmm/client/ui/Graphics.ui.xml Graphics.ui.xml] [https://code.google.com/p/fainty-nmm/source/browse/src/com/google/gwt/faintynmm/client/ui/Presenter.java Presenter.java].
+
+Presenter no tested though.
