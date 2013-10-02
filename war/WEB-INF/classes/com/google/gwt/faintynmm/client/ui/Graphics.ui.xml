@@ -1,0 +1,147 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<ui:style type='com.google.gwt.faintynmm.client.ui.Graphics.Style'>
+		@font-face {
+			font-family: 'Lobster';
+			font-style: normal;
+			font-weight: normal;
+			src: url(./font/Lobster.otf);
+		}
+		
+		@keyframes flash {
+			0%		{background: OrangeRed; box-shadow: 0 0 9px #333;}
+			50%		{background: Gold; box-shadow: 0 0 18px #333;}
+			100%	{background: OrangeRed; box-shadow: 0 0 9px #333;}
+		}
+		
+		@-webkit-keyframes flash {
+			0%		{background: OrangeRed; -webkit-box-shadow: 0 0 9px #333;}
+			50%		{background: Gold; -webkit-box-shadow: 0 0 18px #333;}
+			100%	{background: OrangeRed; -webkit-box-shadow: 0 0 9px #333;}
+		}
+		
+		.info {
+			height: 100%;
+			font-family: 'Lobster', serif;
+			font-size: large;
+		}
+		
+		.status {
+			font-family: 'Lobster', serif;
+			color: Black;
+			font-size: large;
+		}
+		
+		.left {
+			height: 336px;
+			border-right: 2px dotted OrangeRed;
+			padding-right: 10px;
+			vertical-align: top;
+			text-align: right;
+		}
+		
+		.right {
+			height: 336px;
+			border-left: 2px dotted OrangeRed;
+			padding-left: 10px;
+			vertical-align: bottom;
+			text-align: left;
+		}
+		
+		.black {
+			background-color: Black !important;
+		}
+		
+		.white {
+			background-color: White !important;
+		}
+		
+		.board {
+			height: 336px;
+			width: 336px;
+			text-align: center;
+		}
+		
+		.button {
+			height: 32px;
+			width: 32px;
+			border-radius: 16px;
+			margin: 8px 0px 0px 0px;
+			display: inline;
+			background: OrangeRed;
+			box-shadow: 0 0 9px #333;
+			-webkit-box-shadow: 0 0 9px #333;
+		}
+		
+		.flashButton {
+			height: 32px;
+			width: 32px;
+			border-radius: 16px;
+			margin: 8px 0px 0px 0px;
+			display: inline;
+			animation: flash 1s infinite;
+			-webkit-animation: flash 1s infinite;
+		}
+		
+		.topButton {
+			height: 32px;
+			width: 64px;
+			border-radius: 16px;
+			font-family: 'Lobster' serif;
+			display: inline;
+			background: OrangeRed;
+		}
+		
+		.center {
+			margin: auto;
+			text-align: center;
+			vertical-align: middle;
+		}
+		
+		.cellcontainer {
+			height: 48px;
+			width: 48px;
+			margin: 0px;
+			border: none;
+			text-align: center;
+		}
+		
+		.cell {
+			height: 48px;
+			width: 48px;
+			margin: 0px;
+			padding: 0px;
+			border: 0px;
+		}
+		
+		.centerPanel {
+			margin: auto;
+			text-align: center;
+			vertical-align: middle;
+			height: 336px;
+		}
+	</ui:style>
+	<g:HTMLPanel>
+		<g:HorizontalPanel spacing='20' styleName='{style.center}'>
+			<g:Button ui:field='start' styleName='{style.topButton}'>Start</g:Button>
+			<g:Button ui:field='reset' styleName='{style.topButton}'>Reset</g:Button>
+		</g:HorizontalPanel>
+		<g:HorizontalPanel spacing='10' styleName='{style.centerPanel}'>
+			<g:FlowPanel addStyleNames='{style.left}'>
+				<g:Label ui:field='blackUnplacedMen' addStyleNames='{style.info}'></g:Label>
+				<g:Label ui:field='blackLeftMen' addStyleNames='{style.info}'></g:Label>
+			</g:FlowPanel>
+			<g:Grid ui:field="grid" cellPadding='0' cellSpacing='0'
+				borderWidth='0' styleName='{style.board}'></g:Grid>
+			<g:FlowPanel addStyleNames='{style.right}'>
+				<g:Label ui:field='whiteUnplacedMen' addStyleNames='{style.info}'></g:Label>
+				<g:Label ui:field='whiteLeftMen' addStyleNames='{style.info}'></g:Label>
+			</g:FlowPanel>
+		</g:HorizontalPanel>
+		<g:FlowPanel>
+			<g:Label ui:field="phase" addStyleNames='{style.status} {style.center}'></g:Label>
+			<g:Label ui:field="status" addStyleNames='{style.status} {style.center}'></g:Label>
+		</g:FlowPanel>
+	</g:HTMLPanel>
+</ui:UiBinder> 
