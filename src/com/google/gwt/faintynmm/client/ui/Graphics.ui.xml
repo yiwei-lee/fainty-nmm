@@ -49,6 +49,7 @@
 			height: 336px;
 			width: 336px;
 			text-align: center;
+			background-image:url('/image/grid.gif');
 		}
 		
 		.button {
