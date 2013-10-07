@@ -56,14 +56,14 @@ public class Game {
 		blackUnplacedMen = whiteUnplacedMen = 9;
 		blackLeftMen = whiteLeftMen = 9;
 		if (phase == 1){
-			for (int i = 0 ; i < 48 ; i++){
+			for (int i = 0 ; i < 49 ; i++){
 				if (board[i] == 1) blackUnplacedMen--;
 				else if (board[i] == 2) whiteUnplacedMen--;
 			}
 		}else{
 			blackUnplacedMen = whiteUnplacedMen = 0;
 			blackLeftMen = whiteLeftMen = 0;
-			for (int i = 0 ; i < 48 ; i++){
+			for (int i = 0 ; i < 49 ; i++){
 				if (board[i] == 1) blackLeftMen++;
 				else if (board[i] == 2) whiteLeftMen++;
 			}
@@ -90,7 +90,7 @@ public class Game {
 		} else {
 			toReturn = --whiteUnplacedMen;
 		}
-		if (blackUnplacedMen == 0 && whiteUnplacedMen == 0) phase = 2;
+		if (blackUnplacedMen==0 && whiteUnplacedMen==0) phase = 2;
 		turnSwitched();
 		return toReturn;
 	}

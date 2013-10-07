@@ -1,7 +1,6 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -24,11 +23,19 @@ public class Graphics extends Composite implements Presenter.View {
 
 	private static GraphicsUiBinder uiBinder = GWT
 			.create(GraphicsUiBinder.class);
-
 	private Presenter presenter;
 	private ArrayList<Piece> pieces;
 
+	/**
+	 * Pop up a warning dialog if a wrong move is taken by the player.
+	 */
 	private static class WarningDialog extends DialogBox {
+		/**
+		 * Initialize a new pop-up dialog, showing given warning message.
+		 * 
+		 * @param msg
+		 *            the warning message to show in the dialog
+		 */
 		public WarningDialog(String msg) {
 			setText("Warning: " + msg);
 			Button ok = new Button("OK");
@@ -72,6 +79,10 @@ public class Graphics extends Composite implements Presenter.View {
 		pieces = new ArrayList<Piece>();
 		initWidget(uiBinder.createAndBindUi(this));
 		grid.resize(7, 7);
+		//
+		// Initialize the view, initialize all elements and put them into the
+		// grid.
+		//
 		int board[] = { 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1,
 				1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1,
 				0, 1, 0, 1, 0, 0, 1, 0, 0, 1 };
@@ -85,6 +96,10 @@ public class Graphics extends Composite implements Presenter.View {
 				if (board[i * 7 + j] == 1) {
 					Piece piece = new Piece(i * 7 + j);
 					piece.setStyleName(style.button());
+					//
+					// Add handler for button click, which will call Presenter's
+					// function and generate a new history item.
+					//
 					piece.addClickHandler(new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {
@@ -98,6 +113,10 @@ public class Graphics extends Composite implements Presenter.View {
 				}
 			}
 		}
+		//
+		// Add handler for history change, which will parse the current state
+		// string and set up the view.
+		//
 		History.addValueChangeHandler(new ValueChangeHandler<String>() {
 			@Override
 			public void onValueChange(ValueChangeEvent<String> event) {
@@ -105,7 +124,9 @@ public class Graphics extends Composite implements Presenter.View {
 				presenter.parseStateString(newToken);
 			}
 		});
-
+		//
+		// Add handler for start and reset button.
+		//
 		reset.setEnabled(false);
 		start.addClickHandler(new ClickHandler() {
 			@Override
@@ -149,6 +170,11 @@ public class Graphics extends Composite implements Presenter.View {
 		});
 	}
 
+	/**
+	 * Generate the string representing current game state.
+	 * 
+	 * @return the string of current game state
+	 */
 	private String getStateString() {
 		StringBuilder stateString = new StringBuilder();
 		stateString.append(presenter.getPhase());
@@ -213,6 +239,17 @@ public class Graphics extends Composite implements Presenter.View {
 		reset.setEnabled(false);
 	}
 
+	/**
+	 * Send warning message through a pop-up dialog at given place.
+	 * 
+	 * @param msg
+	 *            the warning message to show
+	 * @param left
+	 *            the x coordinate of the dialog
+	 * @param top
+	 *            the y coordinate of the dialog
+	 * @return void
+	 */
 	public void sendWarning(String msg, int left, int top) {
 		WarningDialog warningDialog = new WarningDialog(msg);
 		warningDialog.setPopupPosition(left, top);
@@ -227,29 +264,47 @@ public class Graphics extends Composite implements Presenter.View {
 			this.phase.setText("Phase " + phase);
 	}
 
+	/**
+	 * Set info text of unplaced men.
+	 * 
+	 * @param color
+	 *            the player who owns the unplaced men
+	 * @param unplaced
+	 *            the number of unplaced men
+	 * @return void
+	 */
 	public void setUnplacedMen(Color color, int unplaced) {
-		if (color == null){
+		if (color == null) {
 			blackUnplacedMen.setText("");
 			whiteUnplacedMen.setText("");
 			return;
 		}
-		if (color == Color.BLACK){
-			blackUnplacedMen.setText("Unplaced: "+String.valueOf(unplaced));
-		}else{
-			whiteUnplacedMen.setText("Unplaced: "+String.valueOf(unplaced));
+		if (color == Color.BLACK) {
+			blackUnplacedMen.setText("Unplaced: " + String.valueOf(unplaced));
+		} else {
+			whiteUnplacedMen.setText("Unplaced: " + String.valueOf(unplaced));
 		}
 	}
 
+	/**
+	 * Set info text of left men.
+	 * 
+	 * @param color
+	 *            the player who owns the left men
+	 * @param unplaced
+	 *            the number of unplaced men
+	 * @return void
+	 */
 	public void setLeftMen(Color color, int left) {
-		if (color == null){
+		if (color == null) {
 			whiteLeftMen.setText("");
 			blackLeftMen.setText("");
 			return;
 		}
-		if (color == Color.BLACK){
-			blackLeftMen.setText("Left: "+String.valueOf(left));
-		}else{
-			whiteLeftMen.setText("Left: "+String.valueOf(left));
+		if (color == Color.BLACK) {
+			blackLeftMen.setText("Left: " + String.valueOf(left));
+		} else {
+			whiteLeftMen.setText("Left: " + String.valueOf(left));
 		}
 	}
 

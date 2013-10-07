@@ -14,27 +14,58 @@ public class Presenter {
 		/**
 		 * Renders the piece at this position. If piece is null then the
 		 * position is empty.
+		 * 
+		 * @param color
+		 *            the color to render
+		 * @param row
+		 *            the row number
+		 * @param col
+		 *            the col number
+		 * @return void
+		 * 
 		 */
-		void setPiece(Color color, int x, int y);
+		void setPiece(Color color, int row, int col);
 
 		/**
 		 * Turns the highlighting on or off at this cell. Cells that can be
 		 * clicked should be highlighted.
+		 * 
+		 * @param row
+		 *            the row number
+		 * @param col
+		 *            the col number
+		 * @param highlighted
+		 *            whether the place should be hightlighted
+		 * @return void
+		 * 
 		 */
 		void setHighlighted(int row, int col, boolean highlighted);
 
 		/**
 		 * Indicate whose turn it is.
+		 * 
+		 * @param color
+		 *            the one who should take the turn
+		 * @return void
+		 * 
 		 */
 		void setTurn(Color color);
 
 		/**
 		 * Indicate which phase it is.
+		 * 
+		 * @param phase
+		 *            show which phase the game is in
+		 * @return void
 		 */
 		void setPhase(int phase);
 
 		/**
 		 * Indicate whether the game is in progress or over.
+		 * 
+		 * @param gameResult
+		 *            show the result of the game
+		 * @return void
 		 */
 		void setResult(Color gameResult);
 	}
@@ -50,7 +81,7 @@ public class Presenter {
 	}
 
 	/**
-	 * Handles the event when player click on a button; then call Graphics's
+	 * Handles the event when player click on a button. Then call Graphics's
 	 * methods to set the view.
 	 * 
 	 * @param x
@@ -140,8 +171,15 @@ public class Presenter {
 		return game.getRemovalTurn();
 	}
 
+	/**
+	 * Parse the given string which indicates a specific game state, and correspondingly set the view.
+	 * 
+	 * @param stateString
+	 *            the string of state of the game, showing each button's status
+	 * @return void
+	 */
 	public void parseStateString(String stateString) {
-		assert(stateString.length()==27);
+		assert (stateString.length() == 27);
 		char[] states = stateString.toCharArray();
 		int phase = Character.digit(states[0], 10);
 		Color turn = charToColor(states[1]);
@@ -151,7 +189,7 @@ public class Presenter {
 			int state = Character.digit(states[i + 3], 10);
 			Piece piece = graphics.getPiece(i);
 			piece.setStatus(state);
-			int index =piece.getIndex();
+			int index = piece.getIndex();
 			board[index] = state;
 			Color color = charToColor(states[i + 3]);
 			if (color == null) {
