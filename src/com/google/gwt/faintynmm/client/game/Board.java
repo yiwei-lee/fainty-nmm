@@ -12,7 +12,7 @@ public class Board {
 		for (int i = 0 ; i < 7 ; i++){
 			for (int j = 0; j < 7; j++) {
 				if (board[i*7+j] == 1) this.board[i][j] = Color.BLACK;
-				if (board[i*7+j] == 2) this.board[i][j] = Color.WHITE;
+				else if (board[i*7+j] == 2) this.board[i][j] = Color.WHITE;
 			}
 		} 
 	}

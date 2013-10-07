@@ -9,20 +9,8 @@
 			src: url(./font/Lobster.otf);
 		}
 		
-		@keyframes flash {
-			0%		{background: OrangeRed; box-shadow: 0 0 9px #333;}
-			50%		{background: Gold; box-shadow: 0 0 18px #333;}
-			100%	{background: OrangeRed; box-shadow: 0 0 9px #333;}
-		}
-		
-		@-webkit-keyframes flash {
-			0%		{background: OrangeRed; -webkit-box-shadow: 0 0 9px #333;}
-			50%		{background: Gold; -webkit-box-shadow: 0 0 18px #333;}
-			100%	{background: OrangeRed; -webkit-box-shadow: 0 0 9px #333;}
-		}
-		
 		.info {
-			height: 100%;
+			margin-bottom: 10px;
 			font-family: 'Lobster', serif;
 			font-size: large;
 		}
@@ -129,12 +117,14 @@
 		</g:HorizontalPanel>
 		<g:HorizontalPanel spacing='10' styleName='{style.centerPanel}'>
 			<g:FlowPanel addStyleNames='{style.left}'>
+				<g:Label addStyleNames='{style.info}'>Black</g:Label>
 				<g:Label ui:field='blackUnplacedMen' addStyleNames='{style.info}'></g:Label>
 				<g:Label ui:field='blackLeftMen' addStyleNames='{style.info}'></g:Label>
 			</g:FlowPanel>
 			<g:Grid ui:field="grid" cellPadding='0' cellSpacing='0'
 				borderWidth='0' styleName='{style.board}'></g:Grid>
 			<g:FlowPanel addStyleNames='{style.right}'>
+				<g:Label addStyleNames='{style.info}'>White</g:Label>
 				<g:Label ui:field='whiteUnplacedMen' addStyleNames='{style.info}'></g:Label>
 				<g:Label ui:field='whiteLeftMen' addStyleNames='{style.info}'></g:Label>
 			</g:FlowPanel>

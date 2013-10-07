@@ -121,6 +121,10 @@ public class Graphics extends Composite implements Presenter.View {
 				start.setEnabled(false);
 				setTurn(presenter.getTurn());
 				setPhase(presenter.getPhase());
+				setUnplacedMen(Color.BLACK, 9);
+				setUnplacedMen(Color.WHITE, 9);
+				setLeftMen(Color.BLACK, 9);
+				setLeftMen(Color.WHITE, 9);
 				History.newItem(getStateString());
 			}
 		});
@@ -138,6 +142,8 @@ public class Graphics extends Composite implements Presenter.View {
 				start.setEnabled(true);
 				setTurn(null);
 				setPhase(0);
+				setUnplacedMen(null, 9);
+				setLeftMen(null, 9);
 				History.newItem(getStateString());
 			}
 		});
@@ -165,8 +171,7 @@ public class Graphics extends Composite implements Presenter.View {
 
 	@Override
 	public void setPiece(Color color, int x, int y) {
-		Piece piece = (Piece) ((SimplePanel) grid.getWidget(x, y))
-				.getWidget();
+		Piece piece = (Piece) ((SimplePanel) grid.getWidget(x, y)).getWidget();
 		if (color == null) {
 			piece.getElement().getStyle()
 					.setProperty("background", "OrangeRed");
@@ -174,8 +179,10 @@ public class Graphics extends Composite implements Presenter.View {
 		} else {
 			piece.getElement().getStyle()
 					.setProperty("background", color.name());
-			if (color == Color.BLACK) piece.setStatus(1);
-			else piece.setStatus(2);
+			if (color == Color.BLACK)
+				piece.setStatus(1);
+			else
+				piece.setStatus(2);
 		}
 	}
 
@@ -220,7 +227,33 @@ public class Graphics extends Composite implements Presenter.View {
 			this.phase.setText("Phase " + phase);
 	}
 
-	public ArrayList<Piece> getPieces() {
-		return pieces;
+	public void setUnplacedMen(Color color, int unplaced) {
+		if (color == null){
+			blackUnplacedMen.setText("");
+			whiteUnplacedMen.setText("");
+			return;
+		}
+		if (color == Color.BLACK){
+			blackUnplacedMen.setText("Unplaced: "+String.valueOf(unplaced));
+		}else{
+			whiteUnplacedMen.setText("Unplaced: "+String.valueOf(unplaced));
+		}
+	}
+
+	public void setLeftMen(Color color, int left) {
+		if (color == null){
+			whiteLeftMen.setText("");
+			blackLeftMen.setText("");
+			return;
+		}
+		if (color == Color.BLACK){
+			blackLeftMen.setText("Left: "+String.valueOf(left));
+		}else{
+			whiteLeftMen.setText("Left: "+String.valueOf(left));
+		}
+	}
+
+	public Piece getPiece(int i) {
+		return pieces.get(i);
 	}
 }

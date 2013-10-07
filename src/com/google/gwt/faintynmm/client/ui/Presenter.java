@@ -87,9 +87,10 @@ public class Presenter {
 		}
 		if (phase == 1) {
 			try {
-				game.placeMan(turn, x, y);
+				int unplaced = game.placeMan(turn, x, y);
 				graphics.setPiece(turn, x, y);
 				graphics.setTurn(game.getTurn());
+				graphics.setUnplacedMen(turn, unplaced);
 			} catch (WrongTurnException e) {
 				graphics.sendWarning(e.getMessage(), left, top);
 			} catch (InvalidPlacementException e) {
@@ -148,7 +149,7 @@ public class Presenter {
 		int[] board = new int[49];
 		for (int i = 0; i < 24; i++) {
 			int state = Character.digit(states[i + 3], 10);
-			Piece piece = graphics.getPieces().get(i);
+			Piece piece = graphics.getPiece(i);
 			piece.setStatus(state);
 			int index =piece.getIndex();
 			board[index] = state;

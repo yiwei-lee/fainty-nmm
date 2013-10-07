@@ -33,17 +33,19 @@ public class Game {
 		blackUnplacedMen = whiteUnplacedMen = 9;
 		blackLeftMen = whiteLeftMen = 9;
 		if (phase == 1){
-			for (int i = 0 ; i < 48 ; i++){
+			for (int i = 0 ; i < 49 ; i++){
 				if (board[i] == 1) blackUnplacedMen--;
 				else if (board[i] == 2) whiteUnplacedMen--;
 			}
+			if (blackUnplacedMen==0 && whiteUnplacedMen==0) this.phase = 2;
 		}else{
 			blackUnplacedMen = whiteUnplacedMen = 0;
 			blackLeftMen = whiteLeftMen = 0;
-			for (int i = 0 ; i < 48 ; i++){
+			for (int i = 0 ; i < 49 ; i++){
 				if (board[i] == 1) blackLeftMen++;
 				else if (board[i] == 2) whiteLeftMen++;
 			}
+			if (blackLeftMen==3 && whiteLeftMen==3) this.phase = 3;
 		}
 	}
 	public Game(int board[], Color color, Color removal, int phase){
@@ -67,40 +69,39 @@ public class Game {
 			}
 		}
 	}
-	public void placeMan(Color color, int x, int y) throws WrongTurnException, InvalidPlacementException{
+	public int placeMan(Color color, int x, int y) throws WrongTurnException, InvalidPlacementException{
+		int toReturn = 0;
+		assert(color != null);
 		if (removalTurn != null){
-//			System.out.println("Not a turn to place man, time to remove!");
 			throw new WrongTurnException("Not a turn to place man, time to remove!");
 		}
 		if (turn != color){
-//			System.out.println("Not player "+color+"'s turn to place man!");
 			throw new WrongTurnException("Not player "+color+"'s turn to place man!");
 		}
 		if (phase != 1){
-//			System.out.println("Phase 1 has ended!");
 			throw new InvalidPlacementException("Phase 1 has ended!");
 		}
 		board.placeMan(color, x, y);
 		if (checkNewMill(color, x, y)){
 			removalTurn = color;
 		}
-		if (color == Color.BLACK) blackUnplacedMen--;
-		else whiteUnplacedMen--;
-		if (phase == 1 && blackUnplacedMen == 0 && whiteUnplacedMen == 0) phase = 2;
-		if (turn == Color.BLACK) turn = Color.WHITE;
-		else turn = Color.BLACK;
+		if (color == Color.BLACK) {
+			toReturn = --blackUnplacedMen;
+		} else {
+			toReturn = --whiteUnplacedMen;
+		}
+		if (blackUnplacedMen == 0 && whiteUnplacedMen == 0) phase = 2;
+		turnSwitched();
+		return toReturn;
 	}
 	public void moveMan(Color color, int x1, int y1, int x2, int y2) throws WrongTurnException, InvalidMovementException{
 		if (removalTurn != null){
-//			System.out.println("Not a turn to move man, time to remove!");
 			throw new WrongTurnException("Not a turn to move man, time to remove!");
 		}
 		if (turn != color){
-//			System.out.println("Not player "+color+"'s turn to move man!");
 			throw new WrongTurnException("Not player "+color+"'s turn to move man!");
 		}
 		if (phase == 1){
-//			System.out.println("Still in phase 1!");
 			throw new InvalidMovementException("Still in phase 1!");
 		}
 		if ((color == Color.BLACK && blackLeftMen <= 3) || (color == Color.WHITE && whiteLeftMen <= 3)){
@@ -115,21 +116,18 @@ public class Game {
 	}
 	public void flyMan(Color color, int x1, int y1, int x2, int y2) throws WrongTurnException, InvalidMovementException {
 		if (removalTurn != null){
-//			System.out.println("Not a turn to fly man, time to remove!");
 			throw new WrongTurnException("Not a turn to fly man, time to remove!");
 		}
 		if (turn != color){
-//			System.out.println("Not player "+color+"'s turn to move man!");
+
 			throw new WrongTurnException("Not player "+color+"'s turn to move man!");
 		}
 		if (phase != 3){
-//			System.out.println("Not in phase 3!");
 			throw new InvalidMovementException("Not in phase 3!");
 		}
 		if ((color == Color.BLACK && blackLeftMen <= 3) || (color == Color.WHITE && whiteLeftMen <= 3)){
 			board.flyMan(color, x1, y1, x2, y2);
 		}else{
-//			System.out.println("Player "+color+" can only move man!");
 			throw new InvalidMovementException("Player "+color+" can only move man!");
 		}
 		if (checkNewMill(color, x2, y2)){
@@ -139,7 +137,6 @@ public class Game {
 	}
 	public void removeMan(int x, int y) throws WrongTurnException, InvalidRemovalException{
 		if (removalTurn == null){
-//			System.out.println("Not the time to remove!");
 			throw new WrongTurnException("Not the turn to remove!");
 		}
 		board.removeMan(removalTurn, x, y);
