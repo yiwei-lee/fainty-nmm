@@ -53,21 +53,6 @@ public class Game {
 		removalTurn = removal;
 		this.board = new Board(board);
 		this.phase = phase;
-		blackUnplacedMen = whiteUnplacedMen = 9;
-		blackLeftMen = whiteLeftMen = 9;
-		if (phase == 1){
-			for (int i = 0 ; i < 49 ; i++){
-				if (board[i] == 1) blackUnplacedMen--;
-				else if (board[i] == 2) whiteUnplacedMen--;
-			}
-		}else{
-			blackUnplacedMen = whiteUnplacedMen = 0;
-			blackLeftMen = whiteLeftMen = 0;
-			for (int i = 0 ; i < 49 ; i++){
-				if (board[i] == 1) blackLeftMen++;
-				else if (board[i] == 2) whiteLeftMen++;
-			}
-		}
 	}
 	public int placeMan(Color color, int x, int y) throws WrongTurnException, InvalidPlacementException{
 		int toReturn = 0;
@@ -171,5 +156,20 @@ public class Game {
 	}
 	public Color getMan(int x, int y){
 		return board.getMan(x, y);
+	}
+	public String getPieceStat() {
+		StringBuilder pieceStat = new StringBuilder();
+		pieceStat.append(blackUnplacedMen);
+		pieceStat.append(blackLeftMen);
+		pieceStat.append(whiteUnplacedMen);
+		pieceStat.append(whiteLeftMen);
+		return pieceStat.toString();
+	}
+	public void setPieceStat(char[] pieceStat) {
+		assert(pieceStat.length==4);
+		blackUnplacedMen = pieceStat[0]-48;
+		blackLeftMen = pieceStat[1]-48;
+		whiteUnplacedMen = pieceStat[2]-48;
+		whiteLeftMen = pieceStat[3]-48;
 	}
 }

@@ -109,19 +109,13 @@ public class Presenter {
 			} catch (InvalidRemovalException e) {
 				graphics.sendWarning(e.getMessage(), left, top);
 			}
-			graphics.setPhase(game.getPhase());
-			Color winner = game.getWinner();
-			if (winner != null) {
-				graphics.setResult(winner);
-			}
 			return;
 		}
 		if (phase == 1) {
 			try {
-				int unplaced = game.placeMan(turn, x, y);
+				game.placeMan(turn, x, y);
 				graphics.setPiece(turn, x, y);
 				graphics.setTurn(game.getTurn());
-				graphics.setUnplacedMen(turn, unplaced);
 			} catch (WrongTurnException e) {
 				graphics.sendWarning(e.getMessage(), left, top);
 			} catch (InvalidPlacementException e) {
@@ -172,26 +166,28 @@ public class Presenter {
 	}
 
 	/**
-	 * Parse the given string which indicates a specific game state, and correspondingly set the view.
+	 * Parse the given string which indicates a specific game state, and
+	 * correspondingly set the view.
 	 * 
 	 * @param stateString
 	 *            the string of state of the game, showing each button's status
 	 * @return void
 	 */
 	public void parseStateString(String stateString) {
-		assert (stateString.length() == 27);
+		assert (stateString.length() == 31);
 		char[] states = stateString.toCharArray();
 		int phase = Character.digit(states[0], 10);
 		Color turn = charToColor(states[1]);
 		Color removal = charToColor(states[2]);
 		int[] board = new int[49];
 		for (int i = 0; i < 24; i++) {
-			int state = Character.digit(states[i + 3], 10);
+			int state = Character.digit(states[i + 7], 10);
 			Piece piece = graphics.getPiece(i);
 			piece.setStatus(state);
+			piece.setEnabled(true);
 			int index = piece.getIndex();
 			board[index] = state;
-			Color color = charToColor(states[i + 3]);
+			Color color = charToColor(states[i + 7]);
 			if (color == null) {
 				piece.getElement().getStyle()
 						.setProperty("background", "OrangeRed");
@@ -202,8 +198,11 @@ public class Presenter {
 		}
 		lastX = lastY = -1;
 		game = new Game(board, turn, removal, phase);
+		String pieceStat = stateString.substring(3, 7);
+		game.setPieceStat(pieceStat.toCharArray());
 		graphics.setPhase(phase);
 		graphics.setTurn(turn);
+		graphics.setPieceStat(pieceStat);
 	}
 
 	private Color charToColor(char state) {
@@ -213,5 +212,9 @@ public class Presenter {
 			return Color.WHITE;
 		else
 			return null;
+	}
+
+	public String getPieceStat() {
+		return game.getPieceStat();
 	}
 }
