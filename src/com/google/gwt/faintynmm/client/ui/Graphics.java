@@ -1,8 +1,10 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.MediaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DragEndEvent;
@@ -16,6 +18,7 @@ import com.google.gwt.event.dom.client.DropHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.faintynmm.client.game.Color;
+import com.google.gwt.media.client.Audio;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -38,7 +41,8 @@ public class Graphics extends Composite implements Presenter.View {
 	private Piece fromPiece, toPiece;
 	private final Image blackPiece = new Image("image/blackpiece.gif");
 	private final Image whitePiece = new Image("image/whitepiece.gif");
-
+	private final Audio moveSound = Audio.createIfSupported();
+	
 	/**
 	 * Pop up a warning dialog if a wrong move is taken by the player.
 	 */
@@ -88,6 +92,10 @@ public class Graphics extends Composite implements Presenter.View {
 	Button start, reset;
 
 	public Graphics() {
+		moveSound.setSrc("sound/move.wav");
+		moveSound.setVolume(1.0);
+		moveSound.setPreload(MediaElement.PRELOAD_AUTO);
+		moveSound.setControls(false);
 		presenter = new Presenter(this);
 		pieces = new ArrayList<Piece>();
 		initWidget(uiBinder.createAndBindUi(this));
@@ -107,7 +115,7 @@ public class Graphics extends Composite implements Presenter.View {
 				cell.setStyleName(style.cell());
 				grid.setWidget(i, j, cell);
 				if (board[i * 7 + j] == 1) {
-					final Piece piece = new Piece(i * 7 + j);
+					final Piece piece = new Piece(row, col);
 					piece.setStyleName(style.button());
 					//
 					// Add handler for button click, which will call Presenter's
@@ -116,12 +124,16 @@ public class Graphics extends Composite implements Presenter.View {
 					piece.addClickHandler(new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {
-							presenter.clickOn(row, col, event);
-							History.newItem(getStateString());
+							if (presenter.clickOn(row, col, event)){
+								moveSound.pause();
+								moveSound.play();
+								History.newItem(getStateString());
+							}
 						}
 					});
 					//
-					// Add handler for button dragging.
+					// Add handler for button dragging, dragging should only be
+					// used to move pieces.
 					//
 					piece.addDragStartHandler(new DragStartHandler() {
 						@Override
@@ -129,9 +141,6 @@ public class Graphics extends Composite implements Presenter.View {
 							int status = piece.getStatus();
 							if (status != 0) {
 								fromPiece = piece;
-								String color = piece.getElement().getStyle()
-										.getBackgroundColor();
-								event.setData("text", color);
 								if (piece.getStatus() == 1) {
 									event.getDataTransfer().setDragImage(
 											getImageElement(Color.BLACK), 12,
@@ -155,8 +164,6 @@ public class Graphics extends Composite implements Presenter.View {
 						@Override
 						public void onDragEnd(DragEndEvent event) {
 							if (toPiece != null) {
-								piece.getElement().getStyle()
-										.setBackgroundColor("OrangeRed");
 								toPiece = null;
 							}
 						}
@@ -166,14 +173,17 @@ public class Graphics extends Composite implements Presenter.View {
 						public void onDrop(DropEvent event) {
 							if (piece.getStatus() == 0) {
 								event.preventDefault();
-								String color = event.getData("text");
-								piece.getElement().getStyle()
-										.setProperty("background", color);
-								toPiece = piece;
+								if (presenter.moveMan(fromPiece.getX(),
+										fromPiece.getY(), piece.getX(),
+										piece.getY(), event)) {
+									toPiece = piece;
+									moveSound.pause();
+									moveSound.play();
+									History.newItem(getStateString());
+								}
 							}
 						}
 					});
-					// piece.getElement().setDraggable(Element.DRAGGABLE_FALSE);
 					piece.setEnabled(false);
 					cell.add(piece);
 					pieces.add(piece);
@@ -203,7 +213,7 @@ public class Graphics extends Composite implements Presenter.View {
 				presenter.reset();
 				for (Piece piece : pieces) {
 					piece.getElement().getStyle()
-							.setProperty("background", "OrangeRed");
+							.setBackgroundColor("OrangeRed");
 					piece.setEnabled(true);
 					piece.setStatus(0);
 				}
@@ -220,7 +230,7 @@ public class Graphics extends Composite implements Presenter.View {
 				presenter.reset();
 				for (Piece piece : pieces) {
 					piece.getElement().getStyle()
-							.setProperty("background", "OrangeRed");
+							.setBackgroundColor("OrangeRed");
 					piece.setEnabled(false);
 					piece.setStatus(0);
 				}
@@ -232,6 +242,14 @@ public class Graphics extends Composite implements Presenter.View {
 			}
 		});
 		setPieceStat("9999");
+	}
+
+	private Element getImageElement(Color color) {
+		if (color == Color.BLACK) {
+			return blackPiece.getElement();
+		} else {
+			return whitePiece.getElement();
+		}
 	}
 
 	/**
@@ -342,15 +360,5 @@ public class Graphics extends Composite implements Presenter.View {
 			setResult(Color.BLACK);
 		if (pieceStat.substring(3, 4).equals("2"))
 			setResult(Color.WHITE);
-	}
-
-	private Element getImageElement(Color color) {
-		if (color == Color.BLACK) {
-			return blackPiece.getElement();
-		} else if (color == Color.WHITE) {
-			return whitePiece.getElement();
-		} else {
-			return null;
-		}
 	}
 }

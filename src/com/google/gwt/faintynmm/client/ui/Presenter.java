@@ -2,6 +2,7 @@ package com.google.gwt.faintynmm.client.ui;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.faintynmm.client.exception.InvalidMovementException;
 import com.google.gwt.faintynmm.client.exception.InvalidPlacementException;
 import com.google.gwt.faintynmm.client.exception.InvalidRemovalException;
@@ -93,7 +94,8 @@ public class Presenter {
 	 *            the click event triggered by the button
 	 * @return void
 	 */
-	public void clickOn(int x, int y, ClickEvent event) {
+	public boolean clickOn(int x, int y, ClickEvent event) {
+		boolean succeed = false;
 		int phase = game.getPhase();
 		Color turn = game.getRemovalTurn();
 		Widget source = (Widget) event.getSource();
@@ -105,18 +107,20 @@ public class Presenter {
 			try {
 				game.removeMan(x, y);
 				graphics.setPiece(null, x, y);
+				succeed = true;
 			} catch (WrongTurnException e) {
 				graphics.sendWarning(e.getMessage(), left, top);
 			} catch (InvalidRemovalException e) {
 				graphics.sendWarning(e.getMessage(), left, top);
 			}
-			return;
+			return succeed;
 		}
 		if (phase == 1) {
 			try {
 				game.placeMan(turn, x, y);
 				graphics.setPiece(turn, x, y);
 				graphics.setTurn(game.getTurn());
+				succeed = true;
 			} catch (WrongTurnException e) {
 				graphics.sendWarning(e.getMessage(), left, top);
 			} catch (InvalidPlacementException e) {
@@ -135,6 +139,7 @@ public class Presenter {
 						graphics.setPiece(null, lastX, lastY);
 						graphics.setPiece(turn, x, y);
 						graphics.setTurn(game.getTurn());
+						succeed = true;
 					} catch (WrongTurnException e) {
 						lastX = lastY = -1;
 						graphics.sendWarning(e.getMessage(), left, top);
@@ -147,8 +152,29 @@ public class Presenter {
 			}
 		}
 		graphics.setPhase(game.getPhase());
+		return succeed;
 	}
 
+	public boolean moveMan(int fromX, int fromY, int toX, int toY, DropEvent event){
+		boolean succeed = false;
+		Widget source = (Widget) event.getSource();
+		int left = source.getAbsoluteLeft() + 10;
+		int top = source.getAbsoluteTop() + 10;
+		try {
+			Color from = game.getMan(fromX, fromY);
+			game.moveMan(from, fromX, fromY, toX, toY);
+			graphics.setTurn(game.getTurn());
+			graphics.setPiece(null, fromX, fromY);
+			graphics.setPiece(from, toX, toY);
+			succeed = true;
+		} catch (WrongTurnException e) {
+			graphics.sendWarning(e.getMessage(), left, top);
+		} catch (InvalidMovementException e) {
+			graphics.sendWarning(e.getMessage(), left, top);
+		}
+		return succeed;
+	}
+	
 	public void reset() {
 		game = new Game();
 		lastX = lastY = -1;
@@ -184,7 +210,7 @@ public class Presenter {
 		for (int i = 0; i < 24; i++) {
 			int state = Character.digit(states[i + 7], 10);
 			Piece piece = graphics.getPiece(i);
-//			piece.getElement().setDraggable(Element.DRAGGABLE_FALSE);
+			piece.getElement().setAttribute("draggable", "false");
 			piece.setStatus(state);
 			piece.setEnabled(true);
 			int index = piece.getIndex();
@@ -197,7 +223,7 @@ public class Presenter {
 				piece.getElement().getStyle()
 						.setProperty("background", color.name());
 				if (phase != 1){
-					piece.getElement().setDraggable(Element.DRAGGABLE_TRUE);
+					piece.getElement().setAttribute("draggable", "true");
 				}
 			}
 		}

@@ -3,11 +3,13 @@ package com.google.gwt.faintynmm.client.ui;
 import com.google.gwt.user.client.ui.Button;
 
 public class Piece extends Button {
-	private int index, state;
-
-	public Piece(int index) {
+	private int index, x, y, state;
+	
+	public Piece(int x, int y) {
 		super();
-		this.index = index;
+		this.index = x * 7 + y;
+		this.x = x;
+		this.y = y;
 		state = 0;
 	}
 
@@ -22,8 +24,17 @@ public class Piece extends Button {
 	public int getIndex() {
 		return index;
 	}
+	
+	public void setCord(int x, int y){
+		this.x = x;
+		this.y = y;
+	}
 
-	public void setIndex(int index) {
-		this.index = index;
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
 	}
 }
