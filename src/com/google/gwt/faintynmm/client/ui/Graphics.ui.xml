@@ -49,7 +49,7 @@
 			height: 336px;
 			width: 336px;
 			text-align: center;
-			background-image:url('/image/grid.gif');
+			background-image: url('/image/grid.gif');
 		}
 		
 		.button {
@@ -61,6 +61,7 @@
 			background: OrangeRed;
 			box-shadow: 0 0 9px #333;
 			-webkit-box-shadow: 0 0 9px #333;
+			cursor: pointer;
 		}
 		
 		.flashButton {
@@ -80,6 +81,7 @@
 			font-family: 'Lobster' serif;
 			display: inline;
 			background: OrangeRed;
+			cursor: pointer;
 		}
 		
 		.center {

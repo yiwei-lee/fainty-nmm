@@ -1,5 +1,6 @@
 package com.google.gwt.faintynmm.client.ui;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.faintynmm.client.exception.InvalidMovementException;
 import com.google.gwt.faintynmm.client.exception.InvalidPlacementException;
@@ -183,6 +184,7 @@ public class Presenter {
 		for (int i = 0; i < 24; i++) {
 			int state = Character.digit(states[i + 7], 10);
 			Piece piece = graphics.getPiece(i);
+//			piece.getElement().setDraggable(Element.DRAGGABLE_FALSE);
 			piece.setStatus(state);
 			piece.setEnabled(true);
 			int index = piece.getIndex();
@@ -194,6 +196,9 @@ public class Presenter {
 			} else {
 				piece.getElement().getStyle()
 						.setProperty("background", color.name());
+				if (phase != 1){
+					piece.getElement().setDraggable(Element.DRAGGABLE_TRUE);
+				}
 			}
 		}
 		lastX = lastY = -1;
@@ -213,7 +218,7 @@ public class Presenter {
 		else
 			return null;
 	}
-
+	
 	public String getPieceStat() {
 		return game.getPieceStat();
 	}

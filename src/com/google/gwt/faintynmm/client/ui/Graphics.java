@@ -2,8 +2,17 @@ package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DragEndEvent;
+import com.google.gwt.event.dom.client.DragEndHandler;
+import com.google.gwt.event.dom.client.DragOverEvent;
+import com.google.gwt.event.dom.client.DragOverHandler;
+import com.google.gwt.event.dom.client.DragStartEvent;
+import com.google.gwt.event.dom.client.DragStartHandler;
+import com.google.gwt.event.dom.client.DropEvent;
+import com.google.gwt.event.dom.client.DropHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.faintynmm.client.game.Color;
@@ -15,6 +24,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -25,6 +35,9 @@ public class Graphics extends Composite implements Presenter.View {
 			.create(GraphicsUiBinder.class);
 	private Presenter presenter;
 	private ArrayList<Piece> pieces;
+	private Piece fromPiece, toPiece;
+	private final Image blackPiece = new Image("image/blackpiece.gif");
+	private final Image whitePiece = new Image("image/whitepiece.gif");
 
 	/**
 	 * Pop up a warning dialog if a wrong move is taken by the player.
@@ -90,11 +103,11 @@ public class Graphics extends Composite implements Presenter.View {
 			for (int j = 0; j < 7; j++) {
 				final int row = i;
 				final int col = j;
-				SimplePanel cell = new SimplePanel();
+				final SimplePanel cell = new SimplePanel();
 				cell.setStyleName(style.cell());
 				grid.setWidget(i, j, cell);
 				if (board[i * 7 + j] == 1) {
-					Piece piece = new Piece(i * 7 + j);
+					final Piece piece = new Piece(i * 7 + j);
 					piece.setStyleName(style.button());
 					//
 					// Add handler for button click, which will call Presenter's
@@ -107,6 +120,60 @@ public class Graphics extends Composite implements Presenter.View {
 							History.newItem(getStateString());
 						}
 					});
+					//
+					// Add handler for button dragging.
+					//
+					piece.addDragStartHandler(new DragStartHandler() {
+						@Override
+						public void onDragStart(DragStartEvent event) {
+							int status = piece.getStatus();
+							if (status != 0) {
+								fromPiece = piece;
+								String color = piece.getElement().getStyle()
+										.getBackgroundColor();
+								event.setData("text", color);
+								if (piece.getStatus() == 1) {
+									event.getDataTransfer().setDragImage(
+											getImageElement(Color.BLACK), 12,
+											12);
+								} else {
+									event.getDataTransfer().setDragImage(
+											getImageElement(Color.WHITE), 12,
+											12);
+								}
+							}
+						}
+					});
+					piece.addDragOverHandler(new DragOverHandler() {
+						@Override
+						public void onDragOver(DragOverEvent event) {
+							if (fromPiece != piece)
+								event.preventDefault();
+						}
+					});
+					piece.addDragEndHandler(new DragEndHandler() {
+						@Override
+						public void onDragEnd(DragEndEvent event) {
+							if (toPiece != null) {
+								piece.getElement().getStyle()
+										.setBackgroundColor("OrangeRed");
+								toPiece = null;
+							}
+						}
+					});
+					piece.addDropHandler(new DropHandler() {
+						@Override
+						public void onDrop(DropEvent event) {
+							if (piece.getStatus() == 0) {
+								event.preventDefault();
+								String color = event.getData("text");
+								piece.getElement().getStyle()
+										.setProperty("background", color);
+								toPiece = piece;
+							}
+						}
+					});
+					// piece.getElement().setDraggable(Element.DRAGGABLE_FALSE);
 					piece.setEnabled(false);
 					cell.add(piece);
 					pieces.add(piece);
@@ -271,7 +338,19 @@ public class Graphics extends Composite implements Presenter.View {
 		blackLeftMen.setText("Left: " + pieceStat.substring(1, 2));
 		whiteUnplacedMen.setText("Unplaced: " + pieceStat.substring(2, 3));
 		whiteLeftMen.setText("Left: " + pieceStat.substring(3, 4));
-		if (pieceStat.substring(1, 2).equals("2")) setResult(Color.BLACK);
-		if (pieceStat.substring(3, 4).equals("2")) setResult(Color.WHITE);
+		if (pieceStat.substring(1, 2).equals("2"))
+			setResult(Color.BLACK);
+		if (pieceStat.substring(3, 4).equals("2"))
+			setResult(Color.WHITE);
+	}
+
+	private Element getImageElement(Color color) {
+		if (color == Color.BLACK) {
+			return blackPiece.getElement();
+		} else if (color == Color.WHITE) {
+			return whitePiece.getElement();
+		} else {
+			return null;
+		}
 	}
 }
