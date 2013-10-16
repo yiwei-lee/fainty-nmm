@@ -2,6 +2,7 @@ package com.google.gwt.faintynmm.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.faintynmm.client.ui.Graphics;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.RootPanel;
 
 /**
@@ -14,5 +15,7 @@ public class FaintyNMM implements EntryPoint {
 	public void onModuleLoad() {
 		final Graphics graphics = new Graphics();
 		RootPanel.get("gameContainer").add(graphics);
+		if (!History.getToken().equals(""))
+			History.fireCurrentHistoryState();
 	}
 }

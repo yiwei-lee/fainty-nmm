@@ -363,8 +363,12 @@ public class Graphics extends Composite implements Presenter.View {
 		whiteUnplacedMen.setText("Unplaced: " + pieceStat.substring(2, 3));
 		whiteLeftMen.setText("Left: " + pieceStat.substring(3, 4));
 		if (pieceStat.substring(1, 2).equals("2"))
-			setResult(Color.BLACK);
-		if (pieceStat.substring(3, 4).equals("2"))
 			setResult(Color.WHITE);
+		if (pieceStat.substring(3, 4).equals("2"))
+			setResult(Color.BLACK);
+	}
+
+	public void setRemovalTurn(Color removalTurn) {
+		status.setText(removalTurn.name() + "'s turn to remove");
 	}
 }

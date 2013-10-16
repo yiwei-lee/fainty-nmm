@@ -1,6 +1,5 @@
 package com.google.gwt.faintynmm.client.ui;
 
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.faintynmm.client.exception.InvalidMovementException;
@@ -37,7 +36,7 @@ public class Presenter {
 		 * @param col
 		 *            the col number
 		 * @param highlighted
-		 *            whether the place should be hightlighted
+		 *            whether the place should be highlighted
 		 * @return void
 		 * 
 		 */
@@ -107,6 +106,7 @@ public class Presenter {
 			try {
 				game.removeMan(x, y);
 				graphics.setPiece(null, x, y);
+				graphics.setTurn(game.getTurn());
 				succeed = true;
 			} catch (WrongTurnException e) {
 				graphics.sendWarning(e.getMessage(), left, top);
@@ -119,7 +119,12 @@ public class Presenter {
 			try {
 				game.placeMan(turn, x, y);
 				graphics.setPiece(turn, x, y);
-				graphics.setTurn(game.getTurn());
+				Color removalTurn = game.getRemovalTurn();
+				if (removalTurn != null){
+					graphics.setRemovalTurn(removalTurn);
+				} else{
+					graphics.setTurn(game.getTurn());
+				}
 				succeed = true;
 			} catch (WrongTurnException e) {
 				graphics.sendWarning(e.getMessage(), left, top);
@@ -138,7 +143,12 @@ public class Presenter {
 						game.moveMan(turn, lastX, lastY, x, y);
 						graphics.setPiece(null, lastX, lastY);
 						graphics.setPiece(turn, x, y);
-						graphics.setTurn(game.getTurn());
+						Color removalTurn = game.getRemovalTurn();
+						if (removalTurn != null){
+							graphics.setRemovalTurn(removalTurn);
+						} else{
+							graphics.setTurn(game.getTurn());
+						}
 						succeed = true;
 					} catch (WrongTurnException e) {
 						lastX = lastY = -1;
@@ -232,7 +242,11 @@ public class Presenter {
 		String pieceStat = stateString.substring(3, 7);
 		game.setPieceStat(pieceStat.toCharArray());
 		graphics.setPhase(phase);
-		graphics.setTurn(turn);
+		if (removal != null){
+			graphics.setRemovalTurn(removal);
+		} else{
+			graphics.setTurn(game.getTurn());
+		}
 		graphics.setPieceStat(pieceStat);
 	}
 
