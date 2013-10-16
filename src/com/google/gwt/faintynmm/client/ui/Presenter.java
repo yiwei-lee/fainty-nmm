@@ -82,7 +82,6 @@ public class Presenter {
 		this.graphics = graphics;
 		storage = Storage.getLocalStorageIfSupported();
 		assert (storage != null);
-		storage.setItem("state", null);
 		game = new Game();
 		lastX = lastY = -1;
 	}

@@ -202,6 +202,8 @@ public class Graphics extends Composite implements Presenter.View {
 			public void onValueChange(ValueChangeEvent<String> event) {
 				String newToken = event.getValue();
 				start.setEnabled(false);
+				save.setEnabled(true);
+				load.setEnabled(true);
 				reset.setEnabled(true);
 				presenter.parseStateString(newToken);
 			}
@@ -342,10 +344,35 @@ public class Graphics extends Composite implements Presenter.View {
 	}
 
 	public void setPieceStat(String pieceStat) {
-		blackUnplacedMen.setText("Unplaced: " + pieceStat.substring(0, 1));
-		blackLeftMen.setText("Left: " + pieceStat.substring(1, 2));
-		whiteUnplacedMen.setText("Unplaced: " + pieceStat.substring(2, 3));
-		whiteLeftMen.setText("Left: " + pieceStat.substring(3, 4));
+		String fromText, toText;
+		fromText = blackUnplacedMen.getText();
+		toText = "Unplaced: " + pieceStat.substring(0, 1);
+		if (!fromText.equals(toText)) {
+			InfoUpdateAnimation animation = new InfoUpdateAnimation(
+					blackUnplacedMen, fromText, toText);
+			animation.run(500);
+		}
+		fromText = blackLeftMen.getText();
+		toText = "Left: " + pieceStat.substring(1, 2);
+		if (!fromText.equals(toText)) {
+			InfoUpdateAnimation animation = new InfoUpdateAnimation(
+					blackLeftMen, fromText, toText);
+			animation.run(500);
+		}
+		fromText = whiteUnplacedMen.getText();
+		toText = "Unplaced: " + pieceStat.substring(2, 3);
+		if (!fromText.equals(toText)) {
+			InfoUpdateAnimation animation = new InfoUpdateAnimation(
+					whiteUnplacedMen, fromText, toText);
+			animation.run(500);
+		}
+		fromText = whiteLeftMen.getText();
+		toText = "Left: " + pieceStat.substring(3, 4);
+		if (!fromText.equals(toText)) {
+			InfoUpdateAnimation animation = new InfoUpdateAnimation(
+					whiteLeftMen, fromText, toText);
+			animation.run(500);
+		}
 		if (pieceStat.substring(1, 2).equals("2"))
 			setResult(Color.WHITE);
 		if (pieceStat.substring(3, 4).equals("2"))

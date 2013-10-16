@@ -14,9 +14,10 @@ public class FaintyNMM implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 		final Graphics graphics = new Graphics();
-		graphics.getPresenter().loadGame();
 		RootPanel.get("gameContainer").add(graphics);
 		if (!History.getToken().equals(""))
 			History.fireCurrentHistoryState();
+		else
+			graphics.getPresenter().loadGame();
 	}
 }

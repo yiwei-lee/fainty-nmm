@@ -10,9 +10,12 @@
 		}
 		
 		.info {
+			height: 24px;
 			margin-bottom: 10px;
 			font-family: 'Lobster', serif;
 			font-size: large;
+			overflow: hidden;
+			white-space: pre;
 		}
 		
 		.status {
