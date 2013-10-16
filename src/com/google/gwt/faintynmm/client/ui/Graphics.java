@@ -1,10 +1,9 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
+
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.MediaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DragEndEvent;
@@ -18,7 +17,6 @@ import com.google.gwt.event.dom.client.DropHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.faintynmm.client.game.Color;
-import com.google.gwt.media.client.Audio;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -41,7 +39,6 @@ public class Graphics extends Composite implements Presenter.View {
 	private Piece fromPiece, toPiece;
 	private final Image blackPiece = new Image("image/blackpiece.gif");
 	private final Image whitePiece = new Image("image/whitepiece.gif");
-	private final Audio moveSound = Audio.createIfSupported();
 
 	/**
 	 * Pop up a warning dialog if a wrong move is taken by the player.
@@ -92,11 +89,6 @@ public class Graphics extends Composite implements Presenter.View {
 	Button start, save, load, reset;
 
 	public Graphics() {
-		moveSound.addSource("sound/move.wav", AudioElement.TYPE_WAV);
-		moveSound.addSource("sound/move.mp3", AudioElement.TYPE_MP3);
-		moveSound.setVolume(1.0);
-		moveSound.setPreload(MediaElement.PRELOAD_AUTO);
-		moveSound.setControls(false);
 		presenter = new Presenter(this);
 		pieces = new ArrayList<Piece>();
 		initWidget(uiBinder.createAndBindUi(this));
@@ -126,9 +118,6 @@ public class Graphics extends Composite implements Presenter.View {
 						@Override
 						public void onClick(ClickEvent event) {
 							if (presenter.clickOn(row, col, event)) {
-								moveSound.pause();
-								moveSound.setCurrentTime(0.0);
-								moveSound.play();
 								History.newItem(getStateString());
 							}
 						}
@@ -179,9 +168,6 @@ public class Graphics extends Composite implements Presenter.View {
 										fromPiece.getY(), piece.getX(),
 										piece.getY(), event)) {
 									toPiece = piece;
-									moveSound.pause();
-									moveSound.setCurrentTime(0.0);
-									moveSound.play();
 									History.newItem(getStateString());
 								}
 							}
@@ -350,28 +336,28 @@ public class Graphics extends Composite implements Presenter.View {
 		if (!fromText.equals(toText)) {
 			InfoUpdateAnimation animation = new InfoUpdateAnimation(
 					blackUnplacedMen, fromText, toText);
-			animation.run(500);
+			animation.run(200);
 		}
 		fromText = blackLeftMen.getText();
 		toText = "Left: " + pieceStat.substring(1, 2);
 		if (!fromText.equals(toText)) {
 			InfoUpdateAnimation animation = new InfoUpdateAnimation(
 					blackLeftMen, fromText, toText);
-			animation.run(500);
+			animation.run(200);
 		}
 		fromText = whiteUnplacedMen.getText();
 		toText = "Unplaced: " + pieceStat.substring(2, 3);
 		if (!fromText.equals(toText)) {
 			InfoUpdateAnimation animation = new InfoUpdateAnimation(
 					whiteUnplacedMen, fromText, toText);
-			animation.run(500);
+			animation.run(200);
 		}
 		fromText = whiteLeftMen.getText();
 		toText = "Left: " + pieceStat.substring(3, 4);
 		if (!fromText.equals(toText)) {
 			InfoUpdateAnimation animation = new InfoUpdateAnimation(
 					whiteLeftMen, fromText, toText);
-			animation.run(500);
+			animation.run(200);
 		}
 		if (pieceStat.substring(1, 2).equals("2"))
 			setResult(Color.WHITE);

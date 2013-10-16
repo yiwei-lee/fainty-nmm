@@ -1,5 +1,7 @@
 package com.google.gwt.faintynmm.client.ui;
 
+import com.google.gwt.dom.client.AudioElement;
+import com.google.gwt.dom.client.MediaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.faintynmm.client.exception.InvalidMovementException;
@@ -8,6 +10,7 @@ import com.google.gwt.faintynmm.client.exception.InvalidRemovalException;
 import com.google.gwt.faintynmm.client.exception.WrongTurnException;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Game;
+import com.google.gwt.media.client.Audio;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Widget;
@@ -77,13 +80,29 @@ public class Presenter {
 	private Storage storage;
 	private Game game;
 	private int lastX, lastY;
-
+	private final Audio moveSound = Audio.createIfSupported();
+	private final Audio killSound = Audio.createIfSupported();
+	
 	public Presenter(Graphics graphics) {
 		this.graphics = graphics;
 		storage = Storage.getLocalStorageIfSupported();
 		assert (storage != null);
 		game = new Game();
 		lastX = lastY = -1;
+		//
+		// Initialize Audio objects. Different type of sources added to support
+		// different browsers.
+		//
+		moveSound.addSource("sound/move.wav", AudioElement.TYPE_WAV);
+		moveSound.addSource("sound/move.mp3", AudioElement.TYPE_MP3);
+		moveSound.setVolume(1.0);
+		moveSound.setPreload(MediaElement.PRELOAD_AUTO);
+		moveSound.setControls(false);
+		killSound.addSource("sound/kill.wav", AudioElement.TYPE_WAV);
+		killSound.addSource("sound/kill.mp3", AudioElement.TYPE_MP3);
+		killSound.setVolume(1.0);
+		killSound.setPreload(MediaElement.PRELOAD_AUTO);
+		killSound.setControls(false);
 	}
 
 	/**
@@ -112,6 +131,11 @@ public class Presenter {
 				game.removeMan(x, y);
 				graphics.setPiece(null, x, y);
 				graphics.setTurn(game.getTurn());
+				moveSound.pause();
+				moveSound.setCurrentTime(0.0);
+				killSound.pause();
+				killSound.setCurrentTime(0.0);
+				killSound.play();
 				succeed = true;
 			} catch (WrongTurnException e) {
 				graphics.sendWarning(e.getMessage(), left, top);
@@ -124,6 +148,11 @@ public class Presenter {
 			try {
 				game.placeMan(turn, x, y);
 				graphics.setPiece(turn, x, y);
+				killSound.pause();
+				killSound.setCurrentTime(0.0);
+				moveSound.pause();
+				moveSound.setCurrentTime(0.0);
+				moveSound.play();
 				Color removalTurn = game.getRemovalTurn();
 				if (removalTurn != null) {
 					graphics.setRemovalTurn(removalTurn);
@@ -148,6 +177,11 @@ public class Presenter {
 						game.moveMan(turn, lastX, lastY, x, y);
 						graphics.setPiece(null, lastX, lastY);
 						graphics.setPiece(turn, x, y);
+						killSound.pause();
+						killSound.setCurrentTime(0.0);
+						moveSound.pause();
+						moveSound.setCurrentTime(0.0);
+						moveSound.play();
 						Color removalTurn = game.getRemovalTurn();
 						if (removalTurn != null) {
 							graphics.setRemovalTurn(removalTurn);
@@ -179,9 +213,19 @@ public class Presenter {
 		try {
 			Color from = game.getMan(fromX, fromY);
 			game.moveMan(from, fromX, fromY, toX, toY);
-			graphics.setTurn(game.getTurn());
 			graphics.setPiece(null, fromX, fromY);
 			graphics.setPiece(from, toX, toY);
+			killSound.pause();
+			killSound.setCurrentTime(0.0);
+			moveSound.pause();
+			moveSound.setCurrentTime(0.0);
+			moveSound.play();
+			Color removalTurn = game.getRemovalTurn();
+			if (removalTurn != null) {
+				graphics.setRemovalTurn(removalTurn);
+			} else {
+				graphics.setTurn(game.getTurn());
+			}
 			succeed = true;
 		} catch (WrongTurnException e) {
 			graphics.sendWarning(e.getMessage(), left, top);
