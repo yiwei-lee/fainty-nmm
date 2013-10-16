@@ -3,6 +3,7 @@ package com.google.gwt.faintynmm.client.ui;
 import java.util.ArrayList;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.MediaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -92,7 +93,8 @@ public class Graphics extends Composite implements Presenter.View {
 	Button start, reset;
 
 	public Graphics() {
-		moveSound.setSrc("sound/move.wav");
+		moveSound.addSource("sound/move.wav", AudioElement.TYPE_WAV);
+		moveSound.addSource("sound/move.mp3", AudioElement.TYPE_MP3);
 		moveSound.setVolume(1.0);
 		moveSound.setPreload(MediaElement.PRELOAD_AUTO);
 		moveSound.setControls(false);
@@ -126,6 +128,7 @@ public class Graphics extends Composite implements Presenter.View {
 						public void onClick(ClickEvent event) {
 							if (presenter.clickOn(row, col, event)){
 								moveSound.pause();
+								moveSound.setCurrentTime(0.0);
 								moveSound.play();
 								History.newItem(getStateString());
 							}
@@ -178,6 +181,7 @@ public class Graphics extends Composite implements Presenter.View {
 										piece.getY(), event)) {
 									toPiece = piece;
 									moveSound.pause();
+									moveSound.setCurrentTime(0.0);
 									moveSound.play();
 									History.newItem(getStateString());
 								}
@@ -281,18 +285,20 @@ public class Graphics extends Composite implements Presenter.View {
 	@Override
 	public void setPiece(Color color, int x, int y) {
 		Piece piece = (Piece) ((SimplePanel) grid.getWidget(x, y)).getWidget();
+		String fromColor = piece.getElement().getStyle().getBackgroundColor();
+		String toColor;
 		if (color == null) {
-			piece.getElement().getStyle()
-					.setProperty("background", "OrangeRed");
+			toColor = "orangered";
 			piece.setStatus(0);
 		} else {
-			piece.getElement().getStyle()
-					.setProperty("background", color.name());
+			toColor = color.name();
 			if (color == Color.BLACK)
 				piece.setStatus(1);
 			else
 				piece.setStatus(2);
 		}
+		PieceColorAnimation animation = new PieceColorAnimation(piece, fromColor, toColor);
+		animation.run(500);
 	}
 
 	@Override
