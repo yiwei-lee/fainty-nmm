@@ -116,6 +116,8 @@
 	<g:HTMLPanel>
 		<g:HorizontalPanel spacing='20' styleName='{style.center}'>
 			<g:Button ui:field='start' styleName='{style.topButton}'>Start</g:Button>
+			<g:Button ui:field='save' styleName='{style.topButton}'>Save</g:Button>
+			<g:Button ui:field='load' styleName='{style.topButton}'>Load</g:Button>
 			<g:Button ui:field='reset' styleName='{style.topButton}'>Reset</g:Button>
 		</g:HorizontalPanel>
 		<g:HorizontalPanel spacing='10' styleName='{style.centerPanel}'>

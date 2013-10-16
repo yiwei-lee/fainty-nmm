@@ -1,7 +1,6 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.dom.client.Element;
@@ -43,7 +42,7 @@ public class Graphics extends Composite implements Presenter.View {
 	private final Image blackPiece = new Image("image/blackpiece.gif");
 	private final Image whitePiece = new Image("image/whitepiece.gif");
 	private final Audio moveSound = Audio.createIfSupported();
-	
+
 	/**
 	 * Pop up a warning dialog if a wrong move is taken by the player.
 	 */
@@ -90,7 +89,7 @@ public class Graphics extends Composite implements Presenter.View {
 	Label status, phase, blackUnplacedMen, whiteUnplacedMen, blackLeftMen,
 			whiteLeftMen;
 	@UiField
-	Button start, reset;
+	Button start, save, load, reset;
 
 	public Graphics() {
 		moveSound.addSource("sound/move.wav", AudioElement.TYPE_WAV);
@@ -126,7 +125,7 @@ public class Graphics extends Composite implements Presenter.View {
 					piece.addClickHandler(new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {
-							if (presenter.clickOn(row, col, event)){
+							if (presenter.clickOn(row, col, event)) {
 								moveSound.pause();
 								moveSound.setCurrentTime(0.0);
 								moveSound.play();
@@ -208,8 +207,10 @@ public class Graphics extends Composite implements Presenter.View {
 			}
 		});
 		//
-		// Add handler for start and reset button.
+		// Add handler for top buttons.
 		//
+		save.setEnabled(false);
+		load.setEnabled(false);
 		reset.setEnabled(false);
 		start.addClickHandler(new ClickHandler() {
 			@Override
@@ -221,11 +222,25 @@ public class Graphics extends Composite implements Presenter.View {
 					piece.setEnabled(true);
 					piece.setStatus(0);
 				}
+				save.setEnabled(true);
+				load.setEnabled(true);
 				reset.setEnabled(true);
 				start.setEnabled(false);
 				setTurn(presenter.getTurn());
 				setPhase(presenter.getPhase());
 				History.newItem(getStateString());
+			}
+		});
+		save.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				presenter.saveGame(getStateString());
+			}
+		});
+		load.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				presenter.loadGame();
 			}
 		});
 		reset.addClickHandler(new ClickHandler() {
@@ -238,6 +253,8 @@ public class Graphics extends Composite implements Presenter.View {
 					piece.setEnabled(false);
 					piece.setStatus(0);
 				}
+				save.setEnabled(false);
+				load.setEnabled(false);
 				reset.setEnabled(false);
 				start.setEnabled(true);
 				setTurn(null);
@@ -246,40 +263,6 @@ public class Graphics extends Composite implements Presenter.View {
 			}
 		});
 		setPieceStat("9999");
-	}
-
-	private Element getImageElement(Color color) {
-		if (color == Color.BLACK) {
-			return blackPiece.getElement();
-		} else {
-			return whitePiece.getElement();
-		}
-	}
-
-	/**
-	 * Generate the string representing current game state.
-	 * 
-	 * @return the string of current game state
-	 */
-	private String getStateString() {
-		StringBuilder stateString = new StringBuilder();
-		stateString.append(presenter.getPhase());
-		stateString.append(colorToInt(presenter.getTurn()));
-		stateString.append(colorToInt(presenter.getRemovalTurn()));
-		stateString.append(presenter.getPieceStat());
-		for (Piece piece : pieces) {
-			stateString.append(piece.getStatus());
-		}
-		return stateString.toString();
-	}
-
-	private int colorToInt(Color color) {
-		if (color == null)
-			return 0;
-		else if (color == Color.BLACK)
-			return 1;
-		else
-			return 2;
 	}
 
 	@Override
@@ -297,7 +280,8 @@ public class Graphics extends Composite implements Presenter.View {
 			else
 				piece.setStatus(2);
 		}
-		PieceColorAnimation animation = new PieceColorAnimation(piece, fromColor, toColor);
+		PieceColorAnimation animation = new PieceColorAnimation(piece,
+				fromColor, toColor);
 		animation.run(500);
 	}
 
@@ -370,5 +354,43 @@ public class Graphics extends Composite implements Presenter.View {
 
 	public void setRemovalTurn(Color removalTurn) {
 		status.setText(removalTurn.name() + "'s turn to remove");
+	}
+
+	private Element getImageElement(Color color) {
+		if (color == Color.BLACK) {
+			return blackPiece.getElement();
+		} else {
+			return whitePiece.getElement();
+		}
+	}
+
+	/**
+	 * Generate the string representing current game state.
+	 * 
+	 * @return the string of current game state
+	 */
+	private String getStateString() {
+		StringBuilder stateString = new StringBuilder();
+		stateString.append(presenter.getPhase());
+		stateString.append(colorToInt(presenter.getTurn()));
+		stateString.append(colorToInt(presenter.getRemovalTurn()));
+		stateString.append(presenter.getPieceStat());
+		for (Piece piece : pieces) {
+			stateString.append(piece.getStatus());
+		}
+		return stateString.toString();
+	}
+
+	private int colorToInt(Color color) {
+		if (color == null)
+			return 0;
+		else if (color == Color.BLACK)
+			return 1;
+		else
+			return 2;
+	}
+
+	public Presenter getPresenter() {
+		return presenter;
 	}
 }

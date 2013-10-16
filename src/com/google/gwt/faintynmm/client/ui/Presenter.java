@@ -8,6 +8,8 @@ import com.google.gwt.faintynmm.client.exception.InvalidRemovalException;
 import com.google.gwt.faintynmm.client.exception.WrongTurnException;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Game;
+import com.google.gwt.storage.client.Storage;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Widget;
 
 public class Presenter {
@@ -72,11 +74,15 @@ public class Presenter {
 	}
 
 	private Graphics graphics;
+	private Storage storage;
 	private Game game;
 	private int lastX, lastY;
 
 	public Presenter(Graphics graphics) {
 		this.graphics = graphics;
+		storage = Storage.getLocalStorageIfSupported();
+		assert (storage != null);
+		storage.setItem("state", null);
 		game = new Game();
 		lastX = lastY = -1;
 	}
@@ -120,9 +126,9 @@ public class Presenter {
 				game.placeMan(turn, x, y);
 				graphics.setPiece(turn, x, y);
 				Color removalTurn = game.getRemovalTurn();
-				if (removalTurn != null){
+				if (removalTurn != null) {
 					graphics.setRemovalTurn(removalTurn);
-				} else{
+				} else {
 					graphics.setTurn(game.getTurn());
 				}
 				succeed = true;
@@ -144,9 +150,9 @@ public class Presenter {
 						graphics.setPiece(null, lastX, lastY);
 						graphics.setPiece(turn, x, y);
 						Color removalTurn = game.getRemovalTurn();
-						if (removalTurn != null){
+						if (removalTurn != null) {
 							graphics.setRemovalTurn(removalTurn);
-						} else{
+						} else {
 							graphics.setTurn(game.getTurn());
 						}
 						succeed = true;
@@ -165,7 +171,8 @@ public class Presenter {
 		return succeed;
 	}
 
-	public boolean moveMan(int fromX, int fromY, int toX, int toY, DropEvent event){
+	public boolean moveMan(int fromX, int fromY, int toX, int toY,
+			DropEvent event) {
 		boolean succeed = false;
 		Widget source = (Widget) event.getSource();
 		int left = source.getAbsoluteLeft() + 10;
@@ -184,7 +191,7 @@ public class Presenter {
 		}
 		return succeed;
 	}
-	
+
 	public void reset() {
 		game = new Game();
 		lastX = lastY = -1;
@@ -232,7 +239,7 @@ public class Presenter {
 			} else {
 				piece.getElement().getStyle()
 						.setProperty("background", color.name());
-				if (phase != 1){
+				if (phase != 1) {
 					piece.getElement().setAttribute("draggable", "true");
 				}
 			}
@@ -242,14 +249,29 @@ public class Presenter {
 		String pieceStat = stateString.substring(3, 7);
 		game.setPieceStat(pieceStat.toCharArray());
 		graphics.setPhase(phase);
-		if (removal != null){
+		if (removal != null) {
 			graphics.setRemovalTurn(removal);
-		} else{
+		} else {
 			graphics.setTurn(game.getTurn());
 		}
 		graphics.setPieceStat(pieceStat);
 	}
 
+	public String getPieceStat() {
+		return game.getPieceStat();
+	}
+
+	public void loadGame() {
+		String stateString = storage.getItem("state");
+		if (!stateString.equals("null")){
+			History.newItem(stateString);
+		}
+	}
+	
+	public void saveGame(String stateString) {
+		storage.setItem("state", stateString);
+	}
+	
 	private Color charToColor(char state) {
 		if (state == '1')
 			return Color.BLACK;
@@ -257,9 +279,5 @@ public class Presenter {
 			return Color.WHITE;
 		else
 			return null;
-	}
-	
-	public String getPieceStat() {
-		return game.getPieceStat();
 	}
 }
