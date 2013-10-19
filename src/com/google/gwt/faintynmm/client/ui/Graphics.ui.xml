@@ -115,6 +115,7 @@
 			vertical-align: middle;
 			height: 336px;
 		}
+		
 	</ui:style>
 	<g:HTMLPanel>
 		<g:HorizontalPanel spacing='20' styleName='{style.center}'>

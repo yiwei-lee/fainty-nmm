@@ -12,7 +12,6 @@ import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Game;
 import com.google.gwt.media.client.Audio;
 import com.google.gwt.storage.client.Storage;
-import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Widget;
 
 public class Presenter {
@@ -307,7 +306,7 @@ public class Presenter {
 	public void loadGame() {
 		String stateString = storage.getItem("state");
 		if (!stateString.equals("null")){
-			History.newItem(stateString);
+			parseStateString(stateString);
 		}
 	}
 	

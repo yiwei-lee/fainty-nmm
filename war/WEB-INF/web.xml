@@ -11,9 +11,19 @@
     <servlet-class>com.google.gwt.faintynmm.server.GreetingServiceImpl</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>loginServlet</servlet-name>
+    <servlet-class>com.google.gwt.faintynmm.server.LoginServiceImpl</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>greetServlet</servlet-name>
     <url-pattern>/faintynmm/greet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>loginServlet</servlet-name>
+    <url-pattern>/faintynmm/login</url-pattern>
   </servlet-mapping>
   
   <!-- Default page to serve -->

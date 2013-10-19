@@ -14,13 +14,10 @@ import com.google.gwt.event.dom.client.DragStartEvent;
 import com.google.gwt.event.dom.client.DragStartHandler;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -63,6 +60,9 @@ public class Graphics extends Composite implements Presenter.View {
 		}
 	}
 
+	//
+	// Styles in Graphics.ui.xml
+	//
 	interface Style extends CssResource {
 		String button();
 
@@ -118,7 +118,7 @@ public class Graphics extends Composite implements Presenter.View {
 						@Override
 						public void onClick(ClickEvent event) {
 							if (presenter.clickOn(row, col, event)) {
-								History.newItem(getStateString());
+								presenter.parseStateString(getStateString());
 							}
 						}
 					});
@@ -168,7 +168,7 @@ public class Graphics extends Composite implements Presenter.View {
 										fromPiece.getY(), piece.getX(),
 										piece.getY(), event)) {
 									toPiece = piece;
-									History.newItem(getStateString());
+									presenter.parseStateString(getStateString());
 								}
 							}
 						}
@@ -179,21 +179,6 @@ public class Graphics extends Composite implements Presenter.View {
 				}
 			}
 		}
-		//
-		// Add handler for history change, which will parse the current state
-		// string and set up the view.
-		//
-		History.addValueChangeHandler(new ValueChangeHandler<String>() {
-			@Override
-			public void onValueChange(ValueChangeEvent<String> event) {
-				String newToken = event.getValue();
-				start.setEnabled(false);
-				save.setEnabled(true);
-				load.setEnabled(true);
-				reset.setEnabled(true);
-				presenter.parseStateString(newToken);
-			}
-		});
 		//
 		// Add handler for top buttons.
 		//
@@ -216,7 +201,7 @@ public class Graphics extends Composite implements Presenter.View {
 				start.setEnabled(false);
 				setTurn(presenter.getTurn());
 				setPhase(presenter.getPhase());
-				History.newItem(getStateString());
+				presenter.parseStateString(getStateString());
 			}
 		});
 		save.addClickHandler(new ClickHandler() {
@@ -247,7 +232,7 @@ public class Graphics extends Composite implements Presenter.View {
 				start.setEnabled(true);
 				setTurn(null);
 				setPhase(0);
-				History.newItem(getStateString());
+				presenter.parseStateString(getStateString());
 			}
 		});
 		setPieceStat("9999");
