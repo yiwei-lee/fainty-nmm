@@ -990,3 +990,90 @@ Compiling...
    Compilation completed in 0.00 seconds
 Removing invalidated units
 Finding entry point classes
+Public resources found in...
+Translatable source found in...
+Found 0 cached/archived units.  Used 0 / 2719 units from cache.
+Compiling...
+   20% complete (ETR: 15 seconds)
+   20% complete (ETR: 15 seconds)
+   20% complete (ETR: 15 seconds)
+   30% complete (ETR: 12 seconds)
+   40% complete (ETR: 9 seconds)
+   50% complete (ETR: 7 seconds)
+   60% complete (ETR: 5 seconds)
+   70% complete (ETR: 3 seconds)
+   80% complete (ETR: 2 seconds)
+   90% complete (ETR: 1 seconds)
+   100% complete (ETR: 0 seconds)
+   Compilation completed in 11.19 seconds
+Removing invalidated units
+Finding entry point classes
+Public resources found in...
+Translatable source found in...
+Found 2719 cached/archived units.  Used 2719 / 2719 units from cache.
+Compiling...
+   Compilation completed in 0.00 seconds
+Removing invalidated units
+Finding entry point classes
+Public resources found in...
+Translatable source found in...
+Found 2719 cached/archived units.  Used 2719 / 2719 units from cache.
+Compiling...
+   Compilation completed in 0.00 seconds
+Removing invalidated units
+Finding entry point classes
+Public resources found in...
+Translatable source found in...
+Found 0 cached/archived units.  Used 0 / 2799 units from cache.
+Compiling...
+   Compilation completed in 5.21 seconds
+Validating units:
+   [ERROR] Errors in 'jar:file:/C:/Lib/gwt-gae-channel-2.0.0.jar!/com/google/gwt/appengine/channel/client/ChannelFactory.java'
+      [ERROR] Line 19: The import com.google.inject.ImplementedBy cannot be resolved
+      [ERROR] Line 27: ImplementedBy cannot be resolved to a type
+      [ERROR] Line 27: The attribute value is undefined for the annotation type ImplementedBy
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/PrivateGinModule.java'
+      [ERROR] Line 25: The import com.google.inject.PrivateModule cannot be resolved
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/assistedinject/GinFactoryModuleBuilder.java'
+      [ERROR] Line 21: The import com.google.inject.Module cannot be resolved
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/multibindings/BindingRecorder.java'
+      [ERROR] Line 21: The import com.google.inject.Inject cannot be resolved
+      [ERROR] Line 75: Inject cannot be resolved to a type
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/multibindings/Internal.java'
+      [ERROR] Line 18: The import com.google.inject.BindingAnnotation cannot be resolved
+      [ERROR] Line 29: BindingAnnotation cannot be resolved to a type
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/multibindings/MapEntry.java'
+      [ERROR] Line 18: The import com.google.inject.Inject cannot be resolved
+      [ERROR] Line 31: Inject cannot be resolved to a type
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/multibindings/PermitDuplicatesModule.java'
+      [ERROR] Line 19: The import com.google.inject.Inject cannot be resolved
+      [ERROR] Line 45: Inject cannot be resolved to a type
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/multibindings/ProviderForMap.java'
+      [ERROR] Line 20: The import com.google.inject.Inject cannot be resolved
+      [ERROR] Line 35: Inject cannot be resolved to a type
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/multibindings/ProviderForMultiMap.java'
+      [ERROR] Line 18: The import com.google.inject.Inject cannot be resolved
+      [ERROR] Line 32: Inject cannot be resolved to a type
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/multibindings/ProviderForProviderMap.java'
+      [ERROR] Line 20: The import com.google.inject.Inject cannot be resolved
+      [ERROR] Line 35: Inject cannot be resolved to a type
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/multibindings/ProviderForProviderMultiMap.java'
+      [ERROR] Line 18: The import com.google.inject.Inject cannot be resolved
+      [ERROR] Line 32: Inject cannot be resolved to a type
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/client/multibindings/ProviderForSet.java'
+      [ERROR] Line 20: The import com.google.inject.Inject cannot be resolved
+      [ERROR] Line 34: Inject cannot be resolved to a type
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/guiceapi/com/google/inject/Singleton.java'
+      [ERROR] Line 33: ScopeAnnotation cannot be resolved to a type
+   [ERROR] Errors in 'jar:file:/C:/Lib/gin-2.1.1.jar!/com/google/gwt/inject/guiceapi/com/google/inject/name/Named.java'
+      [ERROR] Line 19: The import com.google.inject.BindingAnnotation cannot be resolved
+      [ERROR] Line 34: BindingAnnotation cannot be resolved to a type
+Removing invalidated units
+Finding entry point classes
+   [ERROR] Errors in 'jar:file:/C:/Lib/gwt-gae-channel-2.0.0.jar!/com/google/gwt/appengine/channel/client/ChannelFactory.java'
+      [ERROR] Line 19: The import com.google.inject.ImplementedBy cannot be resolved
+      [ERROR] Line 27: ImplementedBy cannot be resolved to a type
+      [ERROR] Line 27: The attribute value is undefined for the annotation type ImplementedBy
+   [ERROR] Unable to find type 'com.google.gwt.faintynmm.client.FaintyNMM'
+      [ERROR] Hint: Previous compiler errors may have made this type unavailable
+      [ERROR] Hint: Check the inheritance chain from your module; it may not be inheriting a required module or a module may not be adding its source path entries properly

@@ -81,7 +81,7 @@ public class Presenter {
 	private int lastX, lastY;
 	private final Audio moveSound = Audio.createIfSupported();
 	private final Audio killSound = Audio.createIfSupported();
-	
+
 	public Presenter(Graphics graphics) {
 		this.graphics = graphics;
 		storage = Storage.getLocalStorageIfSupported();
@@ -305,15 +305,15 @@ public class Presenter {
 
 	public void loadGame() {
 		String stateString = storage.getItem("state");
-		if (!stateString.equals("null")){
+		if (!stateString.equals("null")) {
 			parseStateString(stateString);
 		}
 	}
-	
+
 	public void saveGame(String stateString) {
 		storage.setItem("state", stateString);
 	}
-	
+
 	private Color charToColor(char state) {
 		if (state == '1')
 			return Color.BLACK;

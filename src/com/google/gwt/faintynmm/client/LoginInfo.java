@@ -3,12 +3,17 @@ package com.google.gwt.faintynmm.client;
 import java.io.Serializable;
 
 public class LoginInfo implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private boolean loggedIn = false;
 	private String loginUrl;
 	private String logoutUrl;
 	private String emailAddress;
 	private String nickname;
-
+	private String token;
+	
 	public boolean isLoggedIn() {
 		return loggedIn;
 	}
@@ -47,5 +52,13 @@ public class LoginInfo implements Serializable {
 
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 }

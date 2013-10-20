@@ -14,10 +14,12 @@ import com.google.gwt.event.dom.client.DragStartEvent;
 import com.google.gwt.event.dom.client.DragStartHandler;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
+import com.google.gwt.faintynmm.client.GameServiceAsync;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -28,14 +30,27 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class Graphics extends Composite implements Presenter.View {
-
-	private static GraphicsUiBinder uiBinder = GWT
-			.create(GraphicsUiBinder.class);
-	private Presenter presenter;
-	private ArrayList<Piece> pieces;
-	private Piece fromPiece, toPiece;
+	private final static String DEFAULTSTATE = "";
 	private final Image blackPiece = new Image("image/blackpiece.gif");
 	private final Image whitePiece = new Image("image/whitepiece.gif");
+	private GraphicsUiBinder uiBinder = GWT.create(GraphicsUiBinder.class);
+	private Presenter presenter;
+	private GameServiceAsync gameService;
+	private ArrayList<Piece> pieces = new ArrayList<Piece>();
+	private Piece fromPiece, toPiece;
+	private String channelId;
+	private AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+		@Override
+		public void onFailure(Throwable caught) {
+//			System.out.println("Failed.");
+		}
+
+		@Override
+		public void onSuccess(Void result) {
+//			System.out.println("Success.");
+		}
+	};
 
 	/**
 	 * Pop up a warning dialog if a wrong move is taken by the player.
@@ -88,9 +103,9 @@ public class Graphics extends Composite implements Presenter.View {
 	@UiField
 	Button start, save, load, reset;
 
-	public Graphics() {
+	public Graphics(GameServiceAsync gameService) {
+		this.gameService = gameService;
 		presenter = new Presenter(this);
-		pieces = new ArrayList<Piece>();
 		initWidget(uiBinder.createAndBindUi(this));
 		grid.resize(7, 7);
 		//
@@ -168,7 +183,8 @@ public class Graphics extends Composite implements Presenter.View {
 										fromPiece.getY(), piece.getX(),
 										piece.getY(), event)) {
 									toPiece = piece;
-									presenter.parseStateString(getStateString());
+									presenter
+											.parseStateString(getStateString());
 								}
 							}
 						}
@@ -376,7 +392,9 @@ public class Graphics extends Composite implements Presenter.View {
 		for (Piece piece : pieces) {
 			stateString.append(piece.getStatus());
 		}
-		return stateString.toString();
+		String newState = stateString.toString();
+		gameService.changeState(newState, channelId, callback);
+		return newState;
 	}
 
 	private int colorToInt(Color color) {
@@ -390,5 +408,13 @@ public class Graphics extends Composite implements Presenter.View {
 
 	public Presenter getPresenter() {
 		return presenter;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
+	public void notifyServer() {
+		gameService.changeState(DEFAULTSTATE, channelId, callback);
 	}
 }
