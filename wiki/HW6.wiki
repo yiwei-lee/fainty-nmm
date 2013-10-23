@@ -11,3 +11,5 @@ Multi-players support: [https://code.google.com/p/fainty-nmm/source/browse/src/c
 Login with Google account: [https://code.google.com/p/fainty-nmm/source/browse/src/com/google/gwt/faintynmm/server/LoginServiceImpl.java LoginServiceImpl.java]
 
 See also [https://code.google.com/p/fainty-nmm/source/browse/src/com/google/gwt/faintynmm/client/FaintyNMM.java FaintyNMM.java] which demonstrates how these two services are used.
+
+Besides, the bulk of game logic part is modified.
