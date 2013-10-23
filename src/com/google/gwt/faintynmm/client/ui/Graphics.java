@@ -144,26 +144,11 @@ public class Graphics extends Composite implements Presenter.View {
 								event.preventDefault();
 						}
 					});
-					// piece.addDragEndHandler(new DragEndHandler() {
-					// @Override
-					// public void onDragEnd(DragEndEvent event) {
-					// if (toPiece != null) {
-					// toPiece = null;
-					// }
-					// }
-					// });
 					piece.addDropHandler(new DropHandler() {
 						@Override
 						public void onDrop(DropEvent event) {
 							if (piece.getStatus() == 0) {
 								event.preventDefault();
-								// if (presenter.moveMan(fromPiece.getX(),
-								// fromPiece.getY(), piece.getX(),
-								// piece.getY(), event)) {
-								// toPiece = piece;
-								// presenter
-								// .parseStateString(getStateString());
-								// }
 								presenter.moveMan(fromPiece.getX(),
 										fromPiece.getY(), piece.getX(),
 										piece.getY(), event);
@@ -186,11 +171,7 @@ public class Graphics extends Composite implements Presenter.View {
 		start.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				presenter.reset();
-				// save.setEnabled(true);
-				// load.setEnabled(true);
-				reset.setEnabled(true);
-				start.setEnabled(false);
+				presenter.commandWrapper("start");
 			}
 		});
 		save.addClickHandler(new ClickHandler() {
@@ -208,18 +189,29 @@ public class Graphics extends Composite implements Presenter.View {
 		reset.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				presenter.reset();
-//				save.setEnabled(false);
-//				load.setEnabled(false);
-				reset.setEnabled(false);
-				start.setEnabled(true);
-				setTurn(null);
-				setPhase(0);
+				presenter.commandWrapper("reset");
 			}
 		});
 		setPieceStat("9999");
 	}
 
+	/**
+	 * Send warning message through a pop-up dialog at given place.
+	 * 
+	 * @param msg
+	 *            the warning message to show
+	 * @param left
+	 *            the x coordinate of the dialog
+	 * @param top
+	 *            the y coordinate of the dialog
+	 * @return void
+	 */
+	public static void sendWarning(String msg, int left, int top) {
+		WarningDialog warningDialog = new WarningDialog(msg);
+		warningDialog.setPopupPosition(left, top);
+		warningDialog.show();
+	}
+	
 	@Override
 	public void setPiece(Color color, int x, int y) {
 		Piece piece = (Piece) ((SimplePanel) grid.getWidget(x, y)).getWidget();
@@ -254,9 +246,12 @@ public class Graphics extends Composite implements Presenter.View {
 	@Override
 	public void setTurn(Color color) {
 		if (color == null) {
-			status.setText("Not start yet.");
+			status.setText("---Not start yet---");
 		} else {
-			status.setText(color.name() + "'s turn");
+			if (color != presenter.getPlayerColor())
+				status.setText("---Your oponent's turn---");
+			else
+				status.setText("---Your turn---");
 		}
 	}
 
@@ -309,34 +304,30 @@ public class Graphics extends Composite implements Presenter.View {
 	}
 
 	public void setRemovalTurn(Color removalTurn) {
-		status.setText(removalTurn.name() + "'s turn to remove");
+		if (removalTurn != presenter.getPlayerColor())
+			status.setText("---Your oponent's turn to remove---");
+		else
+			status.setText("---Your turn to remove---");
 	}
 
-	/**
-	 * Send warning message through a pop-up dialog at given place.
-	 * 
-	 * @param msg
-	 *            the warning message to show
-	 * @param left
-	 *            the x coordinate of the dialog
-	 * @param top
-	 *            the y coordinate of the dialog
-	 * @return void
-	 */
-	public static void sendWarning(String msg, int left, int top) {
-		WarningDialog warningDialog = new WarningDialog(msg);
-		warningDialog.setPopupPosition(left, top);
-		warningDialog.show();
-	}
 
+	
+	public void setTopButtonStatus(boolean start, boolean save, boolean load, boolean reset){
+		this.start.setEnabled(start);
+		this.save.setEnabled(save);
+		this.load.setEnabled(load);
+		this.reset.setEnabled(reset);
+	}
+	
 	private void setResult(Color gameResult) {
 		phase.setText("");
-		status.setText(gameResult.name() + " wins!");
+		if (gameResult != presenter.getPlayerColor())
+			status.setText("You lost...");
+		else
+			status.setText("You won!");
 		for (Piece piece : pieces) {
 			piece.setEnabled(false);
 		}
-		start.setEnabled(true);
-		reset.setEnabled(false);
 	}
 	
 	private Element getImageElement(Color color) {

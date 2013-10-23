@@ -73,18 +73,19 @@ public class Presenter {
 	private Graphics graphics;
 	private Storage storage;
 	private Game game;
+	private Color playerColor;
 	private GameServiceAsync gameService;
 	private int lastX, lastY;
 	private String channelId;
 	private AsyncCallback<Void> callback = new AsyncCallback<Void>() {
 		@Override
 		public void onFailure(Throwable caught) {
-			// System.out.println("Failed.");
+			// Do nothing.
 		}
 
 		@Override
 		public void onSuccess(Void result) {
-			// System.out.println("Success.");
+			// Do nothing
 		}
 	};
 
@@ -125,15 +126,17 @@ public class Presenter {
 	 * @return void
 	 */
 	public void clickOn(int x, int y, ClickEvent event) {
+		if (!isMyTurn())
+			return;
 		boolean succeed = false;
 		int phase = game.getPhase();
 		Color turn = game.getRemovalTurn();
 		Widget source = (Widget) event.getSource();
 		int left = source.getAbsoluteLeft() + 10;
 		int top = source.getAbsoluteTop() + 10;
-		if (turn == null)
+		if (turn == null) {
 			turn = game.getTurn();
-		else {
+		} else {
 			try {
 				game.removeMan(x, y);
 				graphics.setPiece(null, x, y);
@@ -217,8 +220,9 @@ public class Presenter {
 		return;
 	}
 
-	public void moveMan(int fromX, int fromY, int toX, int toY,
-			DropEvent event) {
+	public void moveMan(int fromX, int fromY, int toX, int toY, DropEvent event) {
+		if (!isMyTurn())
+			return;
 		boolean succeed = false;
 		Widget source = (Widget) event.getSource();
 		int left = source.getAbsoluteLeft() + 10;
@@ -245,7 +249,7 @@ public class Presenter {
 		} catch (InvalidMovementException e) {
 			Graphics.sendWarning(e.getMessage(), left, top);
 		}
-		if (succeed){
+		if (succeed) {
 			updateGraphicInfo();
 			writeToChannel();
 		}
@@ -256,16 +260,27 @@ public class Presenter {
 		game = new Game();
 		lastX = lastY = -1;
 		Piece piece;
-		for (int i = 0 ; i < 24 ; i++){
+		for (int i = 0; i < 24; i++) {
 			piece = graphics.getPiece(i);
 			piece.getElement().getStyle().setBackgroundColor("OrangeRed");
 			piece.setEnabled(true);
 			piece.setStatus(0);
 		}
-		graphics.setTurn(game.getTurn());
-		graphics.setPhase(game.getPhase());
-		updateGraphicInfo();
-		writeToChannel();
+		graphics.setTopButtonStatus(true, false, false, false);
+		graphics.setTurn(null);
+		graphics.setPhase(0);
+		graphics.setPieceStat("9999");
+	}
+
+	public void start() {
+		Piece piece;
+		for (int i = 0; i < 24; i++) {
+			piece = graphics.getPiece(i);
+			piece.setEnabled(true);
+		}
+		graphics.setTopButtonStatus(false, false, false, true);
+		graphics.setTurn(Color.BLACK);
+		graphics.setPhase(1);
 	}
 
 	public Color getTurn() {
@@ -278,6 +293,14 @@ public class Presenter {
 
 	public Color getRemovalTurn() {
 		return game.getRemovalTurn();
+	}
+
+	public Color getPlayerColor() {
+		return playerColor;
+	}
+
+	public void setPlayerColor(Color playerColor) {
+		this.playerColor = playerColor;
 	}
 
 	/**
@@ -327,6 +350,17 @@ public class Presenter {
 		graphics.setPieceStat(pieceStat);
 	}
 
+	public void commandWrapper(String command) {
+		if (command.equals("start")) {
+			playerColor = Color.BLACK;
+			start();
+		}
+		if (command.equals("reset")) {
+			reset();
+		}
+		writeToChannel("!" + command);
+	}
+
 	public String getPieceStat() {
 		return game.getPieceStat();
 	}
@@ -348,6 +382,16 @@ public class Presenter {
 
 	public Graphics getGraphics() {
 		return graphics;
+	}
+
+	private boolean isMyTurn() {
+		Color removal = game.getRemovalTurn();
+		Color turn = game.getTurn();
+		if (removal != null) {
+			return removal == playerColor;
+		} else {
+			return turn == playerColor;
+		}
 	}
 
 	private Color charToColor(char state) {
@@ -400,4 +444,9 @@ public class Presenter {
 		String newState = getStateString();
 		gameService.changeState(newState, channelId, callback);
 	}
+
+	private void writeToChannel(String msg) {
+		gameService.changeState(msg, channelId, callback);
+	}
+
 }

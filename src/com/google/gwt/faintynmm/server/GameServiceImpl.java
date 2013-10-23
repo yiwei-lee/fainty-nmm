@@ -36,14 +36,11 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 			System.out.println("Making match: " + channelId + ", " + oponentId);
 			try {
 				channelService.sendMessage(new ChannelMessage(channelId,
-						"matched"+oponentId));
-				Thread.sleep(500);
+						"!matched"));
 				channelService.sendMessage(new ChannelMessage(oponentId,
-						"matched"+channelId));
+						"!matched"));
 			} catch (ChannelFailureException e) {
 				System.out.println("Channel Failure: " + e.getMessage());
-			} catch (InterruptedException e) {
-				System.out.println("Why don't you let me sleep?!");
 			}
 		} else {
 			System.out.println("Insert into waiting list: " + channelId);
@@ -53,26 +50,27 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 	
 	@Override
 	public void changeState(String newState, String channelId) {
-		if (playerPairs.containsKey(channelId)) {
+		String oponentId = getOponentId(channelId);
+		if (oponentId != null){
 			System.out.println("Making move: " + newState + ", from: "
-					+ channelId + " to: " + playerPairs.get(channelId));
+					+ channelId + " to: " + oponentId);
 			try {
-				channelService.sendMessage(new ChannelMessage(playerPairs
-						.get(channelId), newState));
+				channelService.sendMessage(new ChannelMessage(oponentId, newState));
 			} catch (ChannelFailureException e) {
 				System.out.println("Channel Failure.");
 			}
-		} else if (revertedPlayerPairs.containsKey(channelId)) {
-			System.out.println("Making move: " + newState + ", from: "
-					+ channelId + " to: " + revertedPlayerPairs.get(channelId));
-			try {
-				channelService.sendMessage(new ChannelMessage(
-						revertedPlayerPairs.get(channelId), newState));
-			} catch (ChannelFailureException e) {
-				System.out.println("Channel Failure: " + e.getMessage());
-			}
 		} else {
 			System.out.println("Warning: no oponent but try to change state!");
+		}
+	}
+
+	private String getOponentId(String id){
+		if (playerPairs.containsKey(id)) {
+			return playerPairs.get(id);
+		} else if (revertedPlayerPairs.containsKey(id)) {
+			return revertedPlayerPairs.get(id);
+		} else {
+			return null;
 		}
 	}
 }

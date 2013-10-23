@@ -10,6 +10,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.ui.Graphics;
 import com.google.gwt.faintynmm.client.ui.Presenter;
 import com.google.gwt.user.client.DOM;
@@ -105,8 +106,18 @@ public class FaintyNMM implements EntryPoint {
 
 			@Override
 			public void onMessage(String newState) {
-				if (newState.startsWith("matched")) {
-					connectionStatus.setText("---Connected---");
+				if (newState.startsWith("!")){
+					String order = newState.substring(1);
+					if (order.startsWith("matched")){
+						connectionStatus.setText("---Connected---");
+					}
+					if (order.startsWith("start")){
+						presenter.setPlayerColor(Color.WHITE);
+						presenter.start();
+					}
+					if (order.startsWith("reset")){
+						presenter.reset();
+					}
 				} else {
 					presenter.parseStateString(newState);
 				}
@@ -148,5 +159,13 @@ public class FaintyNMM implements EntryPoint {
 	private void hideLogin() {
 		DOM.getElementById("loginBackground").getStyle()
 				.setDisplay(Display.NONE);
+	}
+
+	public LoginInfo getLoginInfo() {
+		return loginInfo;
+	}
+
+	public Label getConnectionStatus() {
+		return connectionStatus;
 	}
 }
