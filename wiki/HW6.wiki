@@ -1,0 +1,13 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+Add multi-players support using GAE Channel API, and Google account login service.
+
+= Details =
+
+Multi-players support: [https://code.google.com/p/fainty-nmm/source/browse/src/com/google/gwt/faintynmm/server/GameServiceImpl.java GameServiceImpl.java].
+
+Login with Google account: [https://code.google.com/p/fainty-nmm/source/browse/src/com/google/gwt/faintynmm/server/LoginServiceImpl.java LoginServiceImpl.java]
+
+See also [https://code.google.com/p/fainty-nmm/source/browse/src/com/google/gwt/faintynmm/client/FaintyNMM.java FaintyNMM.java] which demonstrates how these two services are used.
