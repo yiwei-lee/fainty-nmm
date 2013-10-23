@@ -4,6 +4,7 @@ import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.dom.client.MediaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DropEvent;
+import com.google.gwt.faintynmm.client.GameServiceAsync;
 import com.google.gwt.faintynmm.client.exception.InvalidMovementException;
 import com.google.gwt.faintynmm.client.exception.InvalidPlacementException;
 import com.google.gwt.faintynmm.client.exception.InvalidRemovalException;
@@ -12,6 +13,7 @@ import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Game;
 import com.google.gwt.media.client.Audio;
 import com.google.gwt.storage.client.Storage;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
 public class Presenter {
@@ -64,29 +66,35 @@ public class Presenter {
 		 * @return void
 		 */
 		void setPhase(int phase);
-
-		/**
-		 * Indicate whether the game is in progress or over.
-		 * 
-		 * @param gameResult
-		 *            show the result of the game
-		 * @return void
-		 */
-		void setResult(Color gameResult);
 	}
 
+	private final Audio moveSound = Audio.createIfSupported();
+	private final Audio killSound = Audio.createIfSupported();
 	private Graphics graphics;
 	private Storage storage;
 	private Game game;
+	private GameServiceAsync gameService;
 	private int lastX, lastY;
-	private final Audio moveSound = Audio.createIfSupported();
-	private final Audio killSound = Audio.createIfSupported();
+	private String channelId;
+	private AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+		@Override
+		public void onFailure(Throwable caught) {
+			// System.out.println("Failed.");
+		}
 
-	public Presenter(Graphics graphics) {
-		this.graphics = graphics;
-		storage = Storage.getLocalStorageIfSupported();
+		@Override
+		public void onSuccess(Void result) {
+			// System.out.println("Success.");
+		}
+	};
+
+	public Presenter(GameServiceAsync gameService, String channelId) {
+		this.graphics = new Graphics(this);
+		this.gameService = gameService;
+		this.channelId = channelId;
+		this.storage = Storage.getLocalStorageIfSupported();
 		assert (storage != null);
-		game = new Game();
+		this.game = new Game();
 		lastX = lastY = -1;
 		//
 		// Initialize Audio objects. Different type of sources added to support
@@ -116,7 +124,7 @@ public class Presenter {
 	 *            the click event triggered by the button
 	 * @return void
 	 */
-	public boolean clickOn(int x, int y, ClickEvent event) {
+	public void clickOn(int x, int y, ClickEvent event) {
 		boolean succeed = false;
 		int phase = game.getPhase();
 		Color turn = game.getRemovalTurn();
@@ -136,12 +144,14 @@ public class Presenter {
 				killSound.setCurrentTime(0.0);
 				killSound.play();
 				succeed = true;
+				updateGraphicInfo();
+				writeToChannel();
 			} catch (WrongTurnException e) {
-				graphics.sendWarning(e.getMessage(), left, top);
+				Graphics.sendWarning(e.getMessage(), left, top);
 			} catch (InvalidRemovalException e) {
-				graphics.sendWarning(e.getMessage(), left, top);
+				Graphics.sendWarning(e.getMessage(), left, top);
 			}
-			return succeed;
+			return;
 		}
 		if (phase == 1) {
 			try {
@@ -160,9 +170,9 @@ public class Presenter {
 				}
 				succeed = true;
 			} catch (WrongTurnException e) {
-				graphics.sendWarning(e.getMessage(), left, top);
+				Graphics.sendWarning(e.getMessage(), left, top);
 			} catch (InvalidPlacementException e) {
-				graphics.sendWarning(e.getMessage(), left, top);
+				Graphics.sendWarning(e.getMessage(), left, top);
 			}
 		} else {
 			if (lastX == -1) {
@@ -190,20 +200,24 @@ public class Presenter {
 						succeed = true;
 					} catch (WrongTurnException e) {
 						lastX = lastY = -1;
-						graphics.sendWarning(e.getMessage(), left, top);
+						Graphics.sendWarning(e.getMessage(), left, top);
 					} catch (InvalidMovementException e) {
 						lastX = lastY = -1;
-						graphics.sendWarning(e.getMessage(), left, top);
+						Graphics.sendWarning(e.getMessage(), left, top);
 					}
 				}
 				lastX = lastY = -1;
 			}
 		}
 		graphics.setPhase(game.getPhase());
-		return succeed;
+		if (succeed) {
+			updateGraphicInfo();
+			writeToChannel();
+		}
+		return;
 	}
 
-	public boolean moveMan(int fromX, int fromY, int toX, int toY,
+	public void moveMan(int fromX, int fromY, int toX, int toY,
 			DropEvent event) {
 		boolean succeed = false;
 		Widget source = (Widget) event.getSource();
@@ -227,16 +241,31 @@ public class Presenter {
 			}
 			succeed = true;
 		} catch (WrongTurnException e) {
-			graphics.sendWarning(e.getMessage(), left, top);
+			Graphics.sendWarning(e.getMessage(), left, top);
 		} catch (InvalidMovementException e) {
-			graphics.sendWarning(e.getMessage(), left, top);
+			Graphics.sendWarning(e.getMessage(), left, top);
 		}
-		return succeed;
+		if (succeed){
+			updateGraphicInfo();
+			writeToChannel();
+		}
+		return;
 	}
 
 	public void reset() {
 		game = new Game();
 		lastX = lastY = -1;
+		Piece piece;
+		for (int i = 0 ; i < 24 ; i++){
+			piece = graphics.getPiece(i);
+			piece.getElement().getStyle().setBackgroundColor("OrangeRed");
+			piece.setEnabled(true);
+			piece.setStatus(0);
+		}
+		graphics.setTurn(game.getTurn());
+		graphics.setPhase(game.getPhase());
+		updateGraphicInfo();
+		writeToChannel();
 	}
 
 	public Color getTurn() {
@@ -260,7 +289,6 @@ public class Presenter {
 	 * @return void
 	 */
 	public void parseStateString(String stateString) {
-		assert (stateString.length() == 31);
 		char[] states = stateString.toCharArray();
 		int phase = Character.digit(states[0], 10);
 		Color turn = charToColor(states[1]);
@@ -310,8 +338,16 @@ public class Presenter {
 		}
 	}
 
-	public void saveGame(String stateString) {
-		storage.setItem("state", stateString);
+	public void saveGame() {
+		storage.setItem("state", getStateString());
+	}
+
+	public void notifyServer() {
+		gameService.enterGame(channelId, callback);
+	}
+
+	public Graphics getGraphics() {
+		return graphics;
 	}
 
 	private Color charToColor(char state) {
@@ -321,5 +357,47 @@ public class Presenter {
 			return Color.WHITE;
 		else
 			return null;
+	}
+
+	private int colorToInt(Color color) {
+		if (color == null)
+			return 0;
+		else if (color == Color.BLACK)
+			return 1;
+		else
+			return 2;
+	}
+
+	private String getStateString() {
+		StringBuilder stateString = new StringBuilder();
+		stateString.append(game.getPhase());
+		stateString.append(colorToInt(game.getTurn()));
+		stateString.append(colorToInt(game.getRemovalTurn()));
+		stateString.append(game.getPieceStat());
+		for (int i = 0; i < 24; i++) {
+			stateString.append(graphics.getPiece(i).getStatus());
+		}
+		return stateString.toString();
+	}
+
+	private void updateGraphicInfo() {
+		String stateString = getStateString();
+		char[] states = stateString.toCharArray();
+		int phase = Character.digit(states[0], 10);
+		Color turn = charToColor(states[1]);
+		Color removal = charToColor(states[2]);
+		String pieceStat = stateString.substring(3, 7);
+		graphics.setPhase(phase);
+		if (removal != null) {
+			graphics.setRemovalTurn(removal);
+		} else {
+			graphics.setTurn(turn);
+		}
+		graphics.setPieceStat(pieceStat);
+	}
+
+	private void writeToChannel() {
+		String newState = getStateString();
+		gameService.changeState(newState, channelId, callback);
 	}
 }

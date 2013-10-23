@@ -1,25 +1,20 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DragEndEvent;
-import com.google.gwt.event.dom.client.DragEndHandler;
 import com.google.gwt.event.dom.client.DragOverEvent;
 import com.google.gwt.event.dom.client.DragOverHandler;
 import com.google.gwt.event.dom.client.DragStartEvent;
 import com.google.gwt.event.dom.client.DragStartHandler;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
-import com.google.gwt.faintynmm.client.GameServiceAsync;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -30,27 +25,12 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class Graphics extends Composite implements Presenter.View {
-	private final static String DEFAULTSTATE = "";
 	private final Image blackPiece = new Image("image/blackpiece.gif");
 	private final Image whitePiece = new Image("image/whitepiece.gif");
 	private GraphicsUiBinder uiBinder = GWT.create(GraphicsUiBinder.class);
 	private Presenter presenter;
-	private GameServiceAsync gameService;
 	private ArrayList<Piece> pieces = new ArrayList<Piece>();
-	private Piece fromPiece, toPiece;
-	private String channelId;
-	private AsyncCallback<Void> callback = new AsyncCallback<Void>() {
-
-		@Override
-		public void onFailure(Throwable caught) {
-//			System.out.println("Failed.");
-		}
-
-		@Override
-		public void onSuccess(Void result) {
-//			System.out.println("Success.");
-		}
-	};
+	private Piece fromPiece;
 
 	/**
 	 * Pop up a warning dialog if a wrong move is taken by the player.
@@ -103,9 +83,8 @@ public class Graphics extends Composite implements Presenter.View {
 	@UiField
 	Button start, save, load, reset;
 
-	public Graphics(GameServiceAsync gameService) {
-		this.gameService = gameService;
-		presenter = new Presenter(this);
+	public Graphics(Presenter presenter2) {
+		presenter = presenter2;
 		initWidget(uiBinder.createAndBindUi(this));
 		grid.resize(7, 7);
 		//
@@ -132,9 +111,7 @@ public class Graphics extends Composite implements Presenter.View {
 					piece.addClickHandler(new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {
-							if (presenter.clickOn(row, col, event)) {
-								presenter.parseStateString(getStateString());
-							}
+							presenter.clickOn(row, col, event);
 						}
 					});
 					//
@@ -146,6 +123,7 @@ public class Graphics extends Composite implements Presenter.View {
 						public void onDragStart(DragStartEvent event) {
 							int status = piece.getStatus();
 							if (status != 0) {
+								event.preventDefault();
 								fromPiece = piece;
 								if (piece.getStatus() == 1) {
 									event.getDataTransfer().setDragImage(
@@ -166,26 +144,29 @@ public class Graphics extends Composite implements Presenter.View {
 								event.preventDefault();
 						}
 					});
-					piece.addDragEndHandler(new DragEndHandler() {
-						@Override
-						public void onDragEnd(DragEndEvent event) {
-							if (toPiece != null) {
-								toPiece = null;
-							}
-						}
-					});
+					// piece.addDragEndHandler(new DragEndHandler() {
+					// @Override
+					// public void onDragEnd(DragEndEvent event) {
+					// if (toPiece != null) {
+					// toPiece = null;
+					// }
+					// }
+					// });
 					piece.addDropHandler(new DropHandler() {
 						@Override
 						public void onDrop(DropEvent event) {
 							if (piece.getStatus() == 0) {
 								event.preventDefault();
-								if (presenter.moveMan(fromPiece.getX(),
+								// if (presenter.moveMan(fromPiece.getX(),
+								// fromPiece.getY(), piece.getX(),
+								// piece.getY(), event)) {
+								// toPiece = piece;
+								// presenter
+								// .parseStateString(getStateString());
+								// }
+								presenter.moveMan(fromPiece.getX(),
 										fromPiece.getY(), piece.getX(),
-										piece.getY(), event)) {
-									toPiece = piece;
-									presenter
-											.parseStateString(getStateString());
-								}
+										piece.getY(), event);
 							}
 						}
 					});
@@ -198,6 +179,7 @@ public class Graphics extends Composite implements Presenter.View {
 		//
 		// Add handler for top buttons.
 		//
+		start.setEnabled(true);
 		save.setEnabled(false);
 		load.setEnabled(false);
 		reset.setEnabled(false);
@@ -205,25 +187,16 @@ public class Graphics extends Composite implements Presenter.View {
 			@Override
 			public void onClick(ClickEvent event) {
 				presenter.reset();
-				for (Piece piece : pieces) {
-					piece.getElement().getStyle()
-							.setBackgroundColor("OrangeRed");
-					piece.setEnabled(true);
-					piece.setStatus(0);
-				}
-				save.setEnabled(true);
-				load.setEnabled(true);
+				// save.setEnabled(true);
+				// load.setEnabled(true);
 				reset.setEnabled(true);
 				start.setEnabled(false);
-				setTurn(presenter.getTurn());
-				setPhase(presenter.getPhase());
-				presenter.parseStateString(getStateString());
 			}
 		});
 		save.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				presenter.saveGame(getStateString());
+				presenter.saveGame();
 			}
 		});
 		load.addClickHandler(new ClickHandler() {
@@ -236,19 +209,12 @@ public class Graphics extends Composite implements Presenter.View {
 			@Override
 			public void onClick(ClickEvent event) {
 				presenter.reset();
-				for (Piece piece : pieces) {
-					piece.getElement().getStyle()
-							.setBackgroundColor("OrangeRed");
-					piece.setEnabled(false);
-					piece.setStatus(0);
-				}
-				save.setEnabled(false);
-				load.setEnabled(false);
+//				save.setEnabled(false);
+//				load.setEnabled(false);
 				reset.setEnabled(false);
 				start.setEnabled(true);
 				setTurn(null);
 				setPhase(0);
-				presenter.parseStateString(getStateString());
 			}
 		});
 		setPieceStat("9999");
@@ -262,16 +228,20 @@ public class Graphics extends Composite implements Presenter.View {
 		if (color == null) {
 			toColor = "orangered";
 			piece.setStatus(0);
+			piece.getElement().setAttribute("draggable", "false");
 		} else {
 			toColor = color.name();
 			if (color == Color.BLACK)
 				piece.setStatus(1);
 			else
 				piece.setStatus(2);
+			if (presenter.getPhase() != 1){
+				piece.getElement().setAttribute("draggable", "true");
+			}
 		}
 		PieceColorAnimation animation = new PieceColorAnimation(piece,
 				fromColor, toColor);
-		animation.run(500);
+		animation.run(250);
 	}
 
 	@Override
@@ -284,38 +254,10 @@ public class Graphics extends Composite implements Presenter.View {
 	@Override
 	public void setTurn(Color color) {
 		if (color == null) {
-			status.setText("");
+			status.setText("Not start yet.");
 		} else {
 			status.setText(color.name() + "'s turn");
 		}
-	}
-
-	@Override
-	public void setResult(Color gameResult) {
-		phase.setText("");
-		status.setText(gameResult.name() + " wins!");
-		for (Piece piece : pieces) {
-			piece.setEnabled(false);
-		}
-		start.setEnabled(true);
-		reset.setEnabled(false);
-	}
-
-	/**
-	 * Send warning message through a pop-up dialog at given place.
-	 * 
-	 * @param msg
-	 *            the warning message to show
-	 * @param left
-	 *            the x coordinate of the dialog
-	 * @param top
-	 *            the y coordinate of the dialog
-	 * @return void
-	 */
-	public void sendWarning(String msg, int left, int top) {
-		WarningDialog warningDialog = new WarningDialog(msg);
-		warningDialog.setPopupPosition(left, top);
-		warningDialog.show();
 	}
 
 	@Override
@@ -370,51 +312,38 @@ public class Graphics extends Composite implements Presenter.View {
 		status.setText(removalTurn.name() + "'s turn to remove");
 	}
 
+	/**
+	 * Send warning message through a pop-up dialog at given place.
+	 * 
+	 * @param msg
+	 *            the warning message to show
+	 * @param left
+	 *            the x coordinate of the dialog
+	 * @param top
+	 *            the y coordinate of the dialog
+	 * @return void
+	 */
+	public static void sendWarning(String msg, int left, int top) {
+		WarningDialog warningDialog = new WarningDialog(msg);
+		warningDialog.setPopupPosition(left, top);
+		warningDialog.show();
+	}
+
+	private void setResult(Color gameResult) {
+		phase.setText("");
+		status.setText(gameResult.name() + " wins!");
+		for (Piece piece : pieces) {
+			piece.setEnabled(false);
+		}
+		start.setEnabled(true);
+		reset.setEnabled(false);
+	}
+	
 	private Element getImageElement(Color color) {
 		if (color == Color.BLACK) {
 			return blackPiece.getElement();
 		} else {
 			return whitePiece.getElement();
 		}
-	}
-
-	/**
-	 * Generate the string representing current game state.
-	 * 
-	 * @return the string of current game state
-	 */
-	private String getStateString() {
-		StringBuilder stateString = new StringBuilder();
-		stateString.append(presenter.getPhase());
-		stateString.append(colorToInt(presenter.getTurn()));
-		stateString.append(colorToInt(presenter.getRemovalTurn()));
-		stateString.append(presenter.getPieceStat());
-		for (Piece piece : pieces) {
-			stateString.append(piece.getStatus());
-		}
-		String newState = stateString.toString();
-		gameService.changeState(newState, channelId, callback);
-		return newState;
-	}
-
-	private int colorToInt(Color color) {
-		if (color == null)
-			return 0;
-		else if (color == Color.BLACK)
-			return 1;
-		else
-			return 2;
-	}
-
-	public Presenter getPresenter() {
-		return presenter;
-	}
-
-	public void setChannelId(String channelId) {
-		this.channelId = channelId;
-	}
-
-	public void notifyServer() {
-		gameService.changeState(DEFAULTSTATE, channelId, callback);
 	}
 }

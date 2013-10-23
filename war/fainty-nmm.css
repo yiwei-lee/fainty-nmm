@@ -9,7 +9,7 @@ h1 {
 	text-align: center;
 }
 
-.lobster{
+.lobster {
 	font-family: 'Lobster', serif;
 	font-size: 1.5em;
 }
@@ -25,8 +25,8 @@ h1 {
 
 .loginBackground {
 	display: block;
-	background-color: Gray;
-	Opacity: 0.5;
+	background-color: Black;
+	Opacity: 0.75;
 	z-index: 1000;
 	position: fixed;
 	top: 0px;
@@ -52,6 +52,9 @@ h1 {
 	display: none;
 	margin: 10% auto;
 	width: 400px;
+	-webkit-box-shadow: 0 0 30px #fff;
+	-moz-box-shadow: 0 0 30px #fff;
+	box-shadow: 0 0 30px #fff;
 }
 
 .loginAnchor {
@@ -66,8 +69,6 @@ h1 {
 	display: block;
 	font-size: 16pt;
 }
-
-
 
 /** Most GWT widgets already have a style name defined */
 .gwt-DialogBox {
@@ -87,7 +88,7 @@ h1 {
 	margin: 15px 6px 6px;
 }
 
-#header{
+#header {
 	width: 100%;
 	text-align: center;
 }

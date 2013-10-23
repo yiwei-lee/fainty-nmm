@@ -16,7 +16,7 @@ public class LoginServiceImpl extends RemoteServiceServlet implements
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static ChannelService channelService = ChannelServiceFactory.getChannelService();
+	private ChannelService channelService = ChannelServiceFactory.getChannelService();
 
 	@Override
 	public LoginInfo login(String requestUri) {

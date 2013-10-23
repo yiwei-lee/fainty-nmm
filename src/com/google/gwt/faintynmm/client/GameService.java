@@ -5,5 +5,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("game")
 public interface GameService extends RemoteService {
-	public void changeState(String newState, String channelId);
+	public void enterGame(String channelId);
+	public void changeState(String newState, String oponentId);
 }
