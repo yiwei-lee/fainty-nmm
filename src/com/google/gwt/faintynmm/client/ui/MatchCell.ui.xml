@@ -1,0 +1,68 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder">
+	<ui:with field='oponentId' type='java.lang.String' />
+	<ui:with field='currentPlayerId' type='java.lang.String' />
+	<ui:with field='pieceColor' type='java.lang.String' />
+	<ui:with field='lastUpdateDate' type='java.lang.String' />
+
+	<ui:style>
+		@font-face {
+			font-family: 'Lobster';
+			font-style: normal;
+			font-weight: ligther;
+			src: url(./font/Lobster.otf);
+		}
+		
+		.label {
+			font-family: 'Lobster', serif;
+		}
+		
+		.anchor {
+			font-family: 'Lobster', serif;
+			margin: auto;
+			color: Blue;
+			text-decoration: underline;
+			text-align: right;
+			display: block;
+		}
+		
+		.center {
+			test-align: cetner;
+			vertical-align: middle;
+			margin: auto;
+		}
+		
+		.piece {
+			height: 80%;
+			width: 80%;
+			border-style: inset;
+			border-radius: 32px;
+			margin: auto;
+		}
+	</ui:style>
+
+	<div
+		style='border-style:none none solid none; height:78px;width:360px;vertical-align:middle;'>
+		<div
+			style='float:left; margin-right:4px;height:64px;width:64px;padding-top: 6.4px;'>
+			<div class='{style.piece}' style='background-color:{pieceColor}' />
+		</div>
+		<div class='{style.center}' style='clear:right'>
+			<div class='{style.label}'>
+				Oponent:
+				<ui:text from='{oponentId}' />
+			</div>
+			<div class='{style.label}'>
+				Current:
+				<ui:text from='{currentPlayerId}' />
+			</div>
+			<div class='{style.label}'>
+				Last update:
+				<ui:text from='{lastUpdateDate}' />
+			</div>
+			<span ui:field='abandon' class='{style.anchor}'>Abandon</span>
+		</div>
+	</div>
+
+
+</ui:UiBinder> 

@@ -9,13 +9,9 @@ import com.google.gwt.faintynmm.client.LoginInfo;
 import com.google.gwt.faintynmm.client.LoginService;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
+@SuppressWarnings("serial")
 public class LoginServiceImpl extends RemoteServiceServlet implements
 		LoginService {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private ChannelService channelService = ChannelServiceFactory.getChannelService();
 
 	@Override

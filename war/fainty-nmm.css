@@ -1,4 +1,11 @@
 /** Add css rules here for your application. */
+@font-face {
+	font-family: 'Lobster';
+	font-style: normal;
+	font-weight: normal;
+	src: url(./font/Lobster.otf);
+}
+
 html {
 	overflow: hidden;
 }
@@ -71,9 +78,6 @@ h1 {
 }
 
 /** Most GWT widgets already have a style name defined */
-.gwt-DialogBox {
-	width: 400px;
-}
 
 .dialogVPanel {
 	margin: 5px;

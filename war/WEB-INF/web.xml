@@ -23,6 +23,18 @@
 		</servlet-class>
 	</servlet>
 	
+	<servlet>
+		<servlet-name>channelConnectServlet</servlet-name>
+		<servlet-class>com.google.gwt.faintynmm.server.ChannelConnectServlet
+		</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<servlet-name>channelDisconnectServlet</servlet-name>
+		<servlet-class>com.google.gwt.faintynmm.server.ChannelDisconnectServlet
+		</servlet-class>
+	</servlet>
+	
 	<servlet-mapping>
 		<servlet-name>greetServlet</servlet-name>
 		<url-pattern>/faintynmm/greet</url-pattern>
@@ -36,6 +48,16 @@
 	<servlet-mapping>
 		<servlet-name>gameServlet</servlet-name>
 		<url-pattern>/faintynmm/game</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>channelConnectServlet</servlet-name>
+		<url-pattern>/_ah/channel/connected/</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>channelDisconnectServlet</servlet-name>
+		<url-pattern>/_ah/channel/disconnected/</url-pattern>
 	</servlet-mapping>
 	
 	<!-- Default page to serve -->

@@ -9,6 +9,11 @@
 			src: url(./font/Lobster.otf);
 		}
 		
+		.glass {
+			background-color: Black;
+			Opacity: 0.75;
+		}
+		
 		.info {
 			height: 24px;
 			margin-bottom: 10px;
@@ -79,7 +84,7 @@
 		
 		.topButton {
 			height: 32px;
-			width: 64px;
+			width: 110px;
 			border-radius: 16px;
 			font-family: 'Lobster' serif;
 			display: inline;
@@ -115,14 +120,11 @@
 			vertical-align: middle;
 			height: 336px;
 		}
-		
 	</ui:style>
 	<g:HTMLPanel>
 		<g:HorizontalPanel spacing='20' styleName='{style.center}'>
-			<g:Button ui:field='start' styleName='{style.topButton}'>Start</g:Button>
-			<g:Button ui:field='save' styleName='{style.topButton}'>Save</g:Button>
-			<g:Button ui:field='load' styleName='{style.topButton}'>Load</g:Button>
-			<g:Button ui:field='reset' styleName='{style.topButton}'>Reset</g:Button>
+			<g:Button ui:field='startNewMatch' styleName='{style.topButton}'>Start New Match</g:Button>
+			<g:Button ui:field='loadMatch' styleName='{style.topButton}'>Load Match</g:Button>
 		</g:HorizontalPanel>
 		<g:HorizontalPanel spacing='10' styleName='{style.centerPanel}'>
 			<g:FlowPanel addStyleNames='{style.left}'>

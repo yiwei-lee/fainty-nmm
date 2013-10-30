@@ -18,7 +18,7 @@
 	<!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/> -->
 
 	<!-- Other module inherits -->
-
+	<inherits name="com.googlecode.objectify.Objectify" />
 	
 	<!-- Specify the app entry point class. -->
 	<entry-point class='com.google.gwt.faintynmm.client.FaintyNMM' />

@@ -38,8 +38,6 @@ public class FaintyNMM implements EntryPoint {
 	private Label loginLabel = new Label(
 			"Please sign in to your Google Account.");
 	private Label welcome = new Label("Welcome!");
-	private Label connectionStatus = new Label(
-			"---Waiting for another player---");
 	private Anchor signInLink = new Anchor("Login");
 	private Presenter presenter;
 	
@@ -48,7 +46,6 @@ public class FaintyNMM implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 		RootPanel.get("header").add(welcome);
-		RootPanel.get("header").add(connectionStatus);
 //		loginService.login(GWT.getHostPageBaseURL(),
 		loginService.login(GWT.getHostPageBaseURL()+"fainty-nmm.html?gwt.codesvr=127.0.0.1:9997",
 				new AsyncCallback<LoginInfo>() {
@@ -56,7 +53,7 @@ public class FaintyNMM implements EntryPoint {
 					// This should not happen...
 					//
 					public void onFailure(Throwable error) {
-						Graphics.sendWarning("WTH?!", 0, 0);
+						Graphics.showWarning("WTH?!", 0, 0);
 					}
 
 					//
@@ -72,7 +69,6 @@ public class FaintyNMM implements EntryPoint {
 							createAndListenToChannel(loginInfo.getToken());
 							welcome.setText("Welcome: "
 									+ loginInfo.getNickname() + "!");
-							presenter.notifyServer();
 						} else {
 							showLogin();
 						}
@@ -108,10 +104,11 @@ public class FaintyNMM implements EntryPoint {
 			public void onMessage(String newState) {
 				if (newState.startsWith("!")){
 					String order = newState.substring(1);
-					if (order.startsWith("matched")){
-						connectionStatus.setText("---Connected---");
+					if (order.startsWith("black")){
+						presenter.setPlayerColor(Color.BLACK);
+						presenter.start();
 					}
-					if (order.startsWith("start")){
+					if (order.startsWith("white")){
 						presenter.setPlayerColor(Color.WHITE);
 						presenter.start();
 					}
@@ -143,10 +140,10 @@ public class FaintyNMM implements EntryPoint {
 		anchorHolder.setStyleName("loginAnchor");
 		anchorHolder.add(signInLink);
 		signInLink.setHref(loginInfo.getLoginUrl());
-		loginLabel.setStyleName("lobster");
+		loginLabel.setStylePrimaryName("lobster");
 		loginPanel.add(loginLabel);
 		loginPanel.add(anchorHolder);
-		signInLink.setStyleName("lobster");
+		signInLink.setStylePrimaryName("lobster");
 		RootPanel.get("loginDialog").add(loginPanel);
 		DOM.getElementById("loginContainer").getStyle()
 				.setDisplay(Display.BLOCK);
@@ -163,9 +160,5 @@ public class FaintyNMM implements EntryPoint {
 
 	public LoginInfo getLoginInfo() {
 		return loginInfo;
-	}
-
-	public Label getConnectionStatus() {
-		return connectionStatus;
 	}
 }

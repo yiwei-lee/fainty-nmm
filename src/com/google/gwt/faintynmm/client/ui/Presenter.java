@@ -1,5 +1,7 @@
 package com.google.gwt.faintynmm.client.ui;
 
+import java.util.ArrayList;
+
 import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.dom.client.MediaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -11,8 +13,8 @@ import com.google.gwt.faintynmm.client.exception.InvalidRemovalException;
 import com.google.gwt.faintynmm.client.exception.WrongTurnException;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Game;
+import com.google.gwt.faintynmm.client.game.Match;
 import com.google.gwt.media.client.Audio;
-import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -70,14 +72,15 @@ public class Presenter {
 
 	private final Audio moveSound = Audio.createIfSupported();
 	private final Audio killSound = Audio.createIfSupported();
+	private final MatchCell matchCell;
 	private Graphics graphics;
-	private Storage storage;
 	private Game game;
 	private Color playerColor;
 	private GameServiceAsync gameService;
 	private int lastX, lastY;
-	private String channelId;
-	private AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+	private String playerId, oponentId, matchId;
+	private ArrayList<Match> matchList;
+	private AsyncCallback<Void> voidCallBack = new AsyncCallback<Void>() {
 		@Override
 		public void onFailure(Throwable caught) {
 			// Do nothing.
@@ -89,12 +92,26 @@ public class Presenter {
 		}
 	};
 
-	public Presenter(GameServiceAsync gameService, String channelId) {
+	private AsyncCallback<ArrayList<Match>> getMatchListCallback = new AsyncCallback<ArrayList<Match>>() {
+
+		@Override
+		public void onFailure(Throwable caught) {
+			System.err.println("Match list update callback error: "
+					+ caught.getMessage());
+		}
+
+		@Override
+		public void onSuccess(ArrayList<Match> result) {
+			matchList = result;
+			graphics.showMatchListDialog(matchCell, matchList);
+		}
+	};
+
+	public Presenter(GameServiceAsync gameService, String playerId) {
+		this.matchCell = new MatchCell(playerId, this);
 		this.graphics = new Graphics(this);
 		this.gameService = gameService;
-		this.channelId = channelId;
-		this.storage = Storage.getLocalStorageIfSupported();
-		assert (storage != null);
+		this.playerId = playerId;
 		this.game = new Game();
 		lastX = lastY = -1;
 		//
@@ -111,6 +128,11 @@ public class Presenter {
 		killSound.setVolume(1.0);
 		killSound.setPreload(MediaElement.PRELOAD_AUTO);
 		killSound.setControls(false);
+
+		//
+		// Load matches from datastore.
+		//
+		// gameService.getMatchList(channelId, getMatchListCallback);
 	}
 
 	/**
@@ -147,12 +169,21 @@ public class Presenter {
 				killSound.setCurrentTime(0.0);
 				killSound.play();
 				succeed = true;
+				if (phase == 1 && game.getPhase() == 2) {
+					Piece piece;
+					for (int i = 0; i < 24; i++) {
+						piece = graphics.getPiece(i);
+						if (piece.getStatus() != 0)
+							piece.getElement()
+									.setAttribute("draggable", "true");
+					}
+				}
 				updateGraphicInfo();
 				writeToChannel();
 			} catch (WrongTurnException e) {
-				Graphics.sendWarning(e.getMessage(), left, top);
+				Graphics.showWarning(e.getMessage(), left, top);
 			} catch (InvalidRemovalException e) {
-				Graphics.sendWarning(e.getMessage(), left, top);
+				Graphics.showWarning(e.getMessage(), left, top);
 			}
 			return;
 		}
@@ -173,9 +204,9 @@ public class Presenter {
 				}
 				succeed = true;
 			} catch (WrongTurnException e) {
-				Graphics.sendWarning(e.getMessage(), left, top);
+				Graphics.showWarning(e.getMessage(), left, top);
 			} catch (InvalidPlacementException e) {
-				Graphics.sendWarning(e.getMessage(), left, top);
+				Graphics.showWarning(e.getMessage(), left, top);
 			}
 		} else {
 			if (lastX == -1) {
@@ -203,10 +234,10 @@ public class Presenter {
 						succeed = true;
 					} catch (WrongTurnException e) {
 						lastX = lastY = -1;
-						Graphics.sendWarning(e.getMessage(), left, top);
+						Graphics.showWarning(e.getMessage(), left, top);
 					} catch (InvalidMovementException e) {
 						lastX = lastY = -1;
-						Graphics.sendWarning(e.getMessage(), left, top);
+						Graphics.showWarning(e.getMessage(), left, top);
 					}
 				}
 				lastX = lastY = -1;
@@ -245,9 +276,9 @@ public class Presenter {
 			}
 			succeed = true;
 		} catch (WrongTurnException e) {
-			Graphics.sendWarning(e.getMessage(), left, top);
+			Graphics.showWarning(e.getMessage(), left, top);
 		} catch (InvalidMovementException e) {
-			Graphics.sendWarning(e.getMessage(), left, top);
+			Graphics.showWarning(e.getMessage(), left, top);
 		}
 		if (succeed) {
 			updateGraphicInfo();
@@ -263,10 +294,10 @@ public class Presenter {
 		for (int i = 0; i < 24; i++) {
 			piece = graphics.getPiece(i);
 			piece.getElement().getStyle().setBackgroundColor("OrangeRed");
-			piece.setEnabled(true);
+			piece.getElement().setAttribute("draggable", "false");
+			piece.setEnabled(false);
 			piece.setStatus(0);
 		}
-		graphics.setTopButtonStatus(true, false, false, false);
 		graphics.setTurn(null);
 		graphics.setPhase(0);
 		graphics.setPieceStat("9999");
@@ -278,7 +309,6 @@ public class Presenter {
 			piece = graphics.getPiece(i);
 			piece.setEnabled(true);
 		}
-		graphics.setTopButtonStatus(false, false, false, true);
 		graphics.setTurn(Color.BLACK);
 		graphics.setPhase(1);
 	}
@@ -365,19 +395,8 @@ public class Presenter {
 		return game.getPieceStat();
 	}
 
-	public void loadGame() {
-		String stateString = storage.getItem("state");
-		if (!stateString.equals("null")) {
-			parseStateString(stateString);
-		}
-	}
-
-	public void saveGame() {
-		storage.setItem("state", getStateString());
-	}
-
-	public void notifyServer() {
-		gameService.enterGame(channelId, callback);
+	public void loadMatchList() {
+		gameService.getMatchList(playerId, getMatchListCallback);
 	}
 
 	public Graphics getGraphics() {
@@ -442,11 +461,64 @@ public class Presenter {
 
 	private void writeToChannel() {
 		String newState = getStateString();
-		gameService.changeState(newState, channelId, callback);
+		gameService.changeState(newState, matchId, playerId, oponentId, voidCallBack);
 	}
 
 	private void writeToChannel(String msg) {
-		gameService.changeState(msg, channelId, callback);
+		gameService.changeState(msg, matchId, playerId, oponentId, voidCallBack);
 	}
 
+	public void startNewMatchGivenEmail(String oponentId) {
+		this.oponentId = oponentId;
+		gameService.startNewMatch(playerId, oponentId, new AsyncCallback<String>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				System.err.println("Fail to start new game!");
+			}
+
+			@Override
+			public void onSuccess(String result) {
+				Presenter.this.matchId = result;
+			}
+		});
+	}
+
+	public void startNewMatchWithAutoMatch() {
+		// TODO;
+	}
+
+	public void loadMatch(Match match) {
+		if (match.getBlackPlayerId().equals(playerId)
+				|| match.getWhitePlayerId().equals(playerId)) {
+			gameService.loadMatch(playerId, match.getMatchId(), new AsyncCallback<Match>() {
+				@Override
+				public void onFailure(Throwable caught) {
+					System.err.println("Load match async callback error: "+caught.getMessage());
+				}
+
+				@Override
+				public void onSuccess(Match result) {
+					if (result.getBlackPlayerId().equals(playerId)){
+						oponentId = result.getWhitePlayerId();
+						playerColor = Color.BLACK;
+					} else {
+						oponentId = result.getBlackPlayerId();
+						playerColor = Color.WHITE;
+					}
+					matchId = result.getMatchId();
+				}
+			});
+		} else {
+			System.err.println("It's not your match?!");
+		}
+	}
+
+	public void hideMatchList() {
+		graphics.hideMatchListDialog();
+	}
+	//
+	// public void abandonMatch(Match match){
+	//
+	// }
 }
