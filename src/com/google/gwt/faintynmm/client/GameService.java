@@ -10,7 +10,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface GameService extends RemoteService {
 	public void initialize(String channelId);
 	public ArrayList<Match> getMatchList(String channelId);
-	public String startNewMatch(String blackPlayer, String whitePlayer);
-	public Match loadMatch(String playerId, String matchId);
-	public void changeState(String newState, String matchId, String playerId, String oponentId);
+	public void startNewMatch(String blackPlayer, String whitePlayer);
+	public void loadMatch(String playerId, String matchId);
+	public void changeState(String newState, String matchId, String playerId, String opponentId);
 }

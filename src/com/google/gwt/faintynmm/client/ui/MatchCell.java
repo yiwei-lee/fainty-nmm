@@ -1,5 +1,9 @@
 package com.google.gwt.faintynmm.client.ui;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.shared.GWT;
@@ -15,7 +19,7 @@ import com.google.gwt.uibinder.client.UiRenderer;
 public class MatchCell extends AbstractCell<Match> {
 	// This can be compared to UiBinder --> here where all magic is done
 	public interface Renderer extends UiRenderer {
-		void render(SafeHtmlBuilder sb, String oponentId,
+		void render(SafeHtmlBuilder sb, String opponentId,
 				String currentPlayerId, String pieceColor, String lastUpdateDate);
 
 		void onBrowserEvent(MatchCell o, NativeEvent e, Element p, Match n);
@@ -38,7 +42,6 @@ public class MatchCell extends AbstractCell<Match> {
 		uiRenderer.onBrowserEvent(this, event, parent, value);
 		if (event.getType().equals(BrowserEvents.DBLCLICK)) {
 			presenter.loadMatch(value);
-			presenter.hideMatchList();
 		}
 	}
 
@@ -50,20 +53,21 @@ public class MatchCell extends AbstractCell<Match> {
 		// Get date here and pass them into uiRenderer, which will do the real job.
 		String blackPlayerId = value.getBlackPlayerId();
 		String whitePlayerId = value.getWhitePlayerId();
-		String oponentId;
+		String opponentId;
 		String currentPlayerId = value.getCurrentPlayerId();
 		String pieceColor;
-		String lastUpdateDate = value.getLastUpdateDate().toString();
+		Date date = value.getLastUpdateDate();
+		String lastUpdateDate = date.toString();
 		if (blackPlayerId.equals(playerId)) {
 			pieceColor = "Black";
-			oponentId = whitePlayerId;
+			opponentId = whitePlayerId;
 		} else {
 			pieceColor = "White";
-			oponentId = blackPlayerId;
+			opponentId = blackPlayerId;
 		}
 
 		// We directly the uiRenderer and we pass the HtmlBuilder
-		uiRenderer.render(safeHtmlBuilder, oponentId, currentPlayerId,
+		uiRenderer.render(safeHtmlBuilder, opponentId, currentPlayerId,
 				pieceColor, lastUpdateDate);
 	}
 

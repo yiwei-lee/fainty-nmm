@@ -1,6 +1,6 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder">
-	<ui:with field='oponentId' type='java.lang.String' />
+	<ui:with field='opponentId' type='java.lang.String' />
 	<ui:with field='currentPlayerId' type='java.lang.String' />
 	<ui:with field='pieceColor' type='java.lang.String' />
 	<ui:with field='lastUpdateDate' type='java.lang.String' />
@@ -50,7 +50,7 @@
 		<div class='{style.center}' style='clear:right'>
 			<div class='{style.label}'>
 				Oponent:
-				<ui:text from='{oponentId}' />
+				<ui:text from='{opponentId}' />
 			</div>
 			<div class='{style.label}'>
 				Current:

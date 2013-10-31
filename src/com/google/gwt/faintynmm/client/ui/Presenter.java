@@ -78,7 +78,7 @@ public class Presenter {
 	private Color playerColor;
 	private GameServiceAsync gameService;
 	private int lastX, lastY;
-	private String playerId, oponentId, matchId;
+	private String playerId, opponentId, matchId;
 	private ArrayList<Match> matchList;
 	private AsyncCallback<Void> voidCallBack = new AsyncCallback<Void>() {
 		@Override
@@ -380,17 +380,6 @@ public class Presenter {
 		graphics.setPieceStat(pieceStat);
 	}
 
-	public void commandWrapper(String command) {
-		if (command.equals("start")) {
-			playerColor = Color.BLACK;
-			start();
-		}
-		if (command.equals("reset")) {
-			reset();
-		}
-		writeToChannel("!" + command);
-	}
-
 	public String getPieceStat() {
 		return game.getPieceStat();
 	}
@@ -461,27 +450,11 @@ public class Presenter {
 
 	private void writeToChannel() {
 		String newState = getStateString();
-		gameService.changeState(newState, matchId, playerId, oponentId, voidCallBack);
+		gameService.changeState(newState, matchId, playerId, opponentId, voidCallBack);
 	}
 
-	private void writeToChannel(String msg) {
-		gameService.changeState(msg, matchId, playerId, oponentId, voidCallBack);
-	}
-
-	public void startNewMatchGivenEmail(String oponentId) {
-		this.oponentId = oponentId;
-		gameService.startNewMatch(playerId, oponentId, new AsyncCallback<String>() {
-
-			@Override
-			public void onFailure(Throwable caught) {
-				System.err.println("Fail to start new game!");
-			}
-
-			@Override
-			public void onSuccess(String result) {
-				Presenter.this.matchId = result;
-			}
-		});
+	public void startNewMatchGivenEmail(String opponentId) {
+		gameService.startNewMatch(playerId, opponentId, voidCallBack);
 	}
 
 	public void startNewMatchWithAutoMatch() {
@@ -491,22 +464,15 @@ public class Presenter {
 	public void loadMatch(Match match) {
 		if (match.getBlackPlayerId().equals(playerId)
 				|| match.getWhitePlayerId().equals(playerId)) {
-			gameService.loadMatch(playerId, match.getMatchId(), new AsyncCallback<Match>() {
+			gameService.loadMatch(playerId, match.getMatchId(), new AsyncCallback<Void>() {
 				@Override
 				public void onFailure(Throwable caught) {
 					System.err.println("Load match async callback error: "+caught.getMessage());
 				}
 
 				@Override
-				public void onSuccess(Match result) {
-					if (result.getBlackPlayerId().equals(playerId)){
-						oponentId = result.getWhitePlayerId();
-						playerColor = Color.BLACK;
-					} else {
-						oponentId = result.getBlackPlayerId();
-						playerColor = Color.WHITE;
-					}
-					matchId = result.getMatchId();
+				public void onSuccess(Void result) {
+					hideMatchList();
 				}
 			});
 		} else {
@@ -517,8 +483,24 @@ public class Presenter {
 	public void hideMatchList() {
 		graphics.hideMatchListDialog();
 	}
-	//
-	// public void abandonMatch(Match match){
-	//
-	// }
+	
+	 public void abandonMatch(Match match){
+		 // TODO
+	 }
+
+	public String getOponentId() {
+		return opponentId;
+	}
+
+	public void setOponentId(String opponentId) {
+		this.opponentId = opponentId;
+	}
+
+	public String getMatchId() {
+		return matchId;
+	}
+
+	public void setMatchId(String matchId) {
+		this.matchId = matchId;
+	}
 }

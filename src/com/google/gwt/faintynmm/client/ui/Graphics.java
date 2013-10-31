@@ -112,6 +112,7 @@ public class Graphics extends Composite implements Presenter.View {
 			setGlassEnabled(true);
 			setGlassStyleName(style.glass());
 			setPixelSize(377, 400);
+			setAnimationEnabled(true);
 		}
 
 		public void updateAndShow(MatchCell matchCell, ArrayList<Match> matches) {
@@ -148,7 +149,8 @@ public class Graphics extends Composite implements Presenter.View {
 			setAutoHideEnabled(true);
 			setGlassEnabled(true);
 			setGlassStyleName(style.glass());
-
+			setAnimationEnabled(true);
+			
 			VerticalPanel panel = new VerticalPanel();
 			HorizontalPanel panel1 = new HorizontalPanel();
 			HorizontalPanel panel2 = new HorizontalPanel();
