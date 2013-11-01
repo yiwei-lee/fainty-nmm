@@ -70,16 +70,7 @@
 			box-shadow: 0 0 9px #333;
 			-webkit-box-shadow: 0 0 9px #333;
 			cursor: pointer;
-		}
-		
-		.flashButton {
-			height: 32px;
-			width: 32px;
-			border-radius: 16px;
-			margin: 8px 0px 0px 0px;
-			display: inline;
-			animation: flash 1s infinite;
-			-webkit-animation: flash 1s infinite;
+			outline-width: 0px;
 		}
 		
 		.topButton {
@@ -90,6 +81,7 @@
 			display: inline;
 			background: OrangeRed;
 			cursor: pointer;
+			outline-width: 0px;
 		}
 		
 		.center {
@@ -120,8 +112,45 @@
 			vertical-align: middle;
 			height: 336px;
 		}
+		
+		.loadingBackground {
+			display: block;
+			background-color: Black;
+			Opacity: 0.75;
+			z-index: 1000;
+			position: fixed;
+			top: 0px;
+			left: 0px;
+			height: 100%;
+			width: 100%;
+		}
+		
+		.loadingWrapper {
+			z-index: 1001;
+			position: fixed;
+			top: 0px;
+			left: 0px;
+			height: 100%;
+			width: 100%;
+			text-align: center;
+		}
+		
+		.loadingText {
+			height: 40px;
+			color: White;
+			font-family: 'Lobster', serif;
+			font-size: 40px;
+			margin-top: 10%;
+		}
+		
+		.unselectable {
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
 	</ui:style>
-	<g:HTMLPanel>
+	<g:HTMLPanel addStyleNames='{style.unselectable}'>
 		<g:HorizontalPanel spacing='20' styleName='{style.center}'>
 			<g:Button ui:field='startNewMatch' styleName='{style.topButton}'>Start New Match</g:Button>
 			<g:Button ui:field='loadMatch' styleName='{style.topButton}'>Load Match</g:Button>

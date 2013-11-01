@@ -25,7 +25,6 @@ public class ChannelDisconnectServlet extends HttpServlet {
 
 		// Update datastore.
 		Player player = OfyService.ofy().load().key(Key.create(Player.class, playerId)).now();
-		assert (player != null);
 		player.decConnectedDeviceNumber();
 		OfyService.ofy().save().entity(player).now();
 

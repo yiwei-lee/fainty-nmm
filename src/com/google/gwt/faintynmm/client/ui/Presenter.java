@@ -337,11 +337,17 @@ public class Presenter {
 	 * Parse the given string which indicates a specific game state, and
 	 * correspondingly set the view.
 	 * 
-	 * @param stateString
+	 * @param newState
 	 *            the string of state of the game, showing each button's status
 	 * @return void
 	 */
-	public void parseStateString(String stateString) {
+	public void parseStateString(String matchId, String stateString) {
+		if (!matchId.equals(this.matchId)) {
+			System.out.println("Not current game: ignore.");
+			return;
+		} else {
+			System.out.println("Parsing: "+stateString);
+		}
 		char[] states = stateString.toCharArray();
 		int phase = Character.digit(states[0], 10);
 		Color turn = charToColor(states[1]);
@@ -502,5 +508,10 @@ public class Presenter {
 
 	public void setMatchId(String matchId) {
 		this.matchId = matchId;
+	}
+
+	public void finishReceivingMsg() {
+		// TODO Auto-generated method stub
+		
 	}
 }

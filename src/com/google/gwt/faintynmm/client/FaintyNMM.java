@@ -93,7 +93,6 @@ public class FaintyNMM implements EntryPoint {
 	// Create and open channel, and define behaviors when receiving messages.
 	//
 	private void createAndListenToChannel(String token) {
-		assert (presenter != null);
 		Channel channel = channelFactory.createChannel(token);
 		socket = channel.open(new SocketListener() {
 			@Override
@@ -101,11 +100,17 @@ public class FaintyNMM implements EntryPoint {
 			}
 
 			@Override
-			public void onMessage(String newState) {
-				if (newState.startsWith("!")){
-					String []parameters = newState.substring(1).split("!");
+			public void onMessage(String msg) {
+				msg = msg.trim();
+				if (msg.equals(".")){
+					presenter.finishReceivingMsg();
+				}
+				System.out.println("Message received: "+msg);
+				String []parameters;
+				if (msg.startsWith("!")){
+					parameters = msg.substring(1).split("!");
 					if (parameters.length != 3){
-						System.err.println("Error command: "+newState);
+						System.err.println("Error command: "+msg);
 					}
 					if (parameters[0].equals("black")){
 						presenter.setPlayerColor(Color.BLACK);
@@ -116,7 +121,8 @@ public class FaintyNMM implements EntryPoint {
 					presenter.setOponentId(parameters[1]);
 					presenter.setMatchId(parameters[2].substring(0, 16));
 				} else {
-					presenter.parseStateString(newState);
+					parameters = msg.split("!");
+					presenter.parseStateString(parameters[0], parameters[1]);
 				}
 			}
 

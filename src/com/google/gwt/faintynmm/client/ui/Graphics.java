@@ -12,6 +12,9 @@ import com.google.gwt.event.dom.client.DragStartEvent;
 import com.google.gwt.event.dom.client.DragStartHandler;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Match;
 import com.google.gwt.resources.client.CssResource;
@@ -62,6 +65,8 @@ public class Graphics extends Composite implements Presenter.View {
 		String cell();
 
 		String glass();
+		
+		String unselectable();
 	}
 
 	interface GraphicsUiBinder extends UiBinder<Widget, Graphics> {
@@ -143,7 +148,8 @@ public class Graphics extends Composite implements Presenter.View {
 	 */
 	private class NewMatchDialog extends DialogBox {
 		private final TextBox emailBox = new TextBox();
-
+		private final Button sendButton = new Button("Send");
+		
 		public NewMatchDialog() {
 			setModal(true);
 			setAutoHideEnabled(true);
@@ -155,10 +161,20 @@ public class Graphics extends Composite implements Presenter.View {
 			HorizontalPanel panel1 = new HorizontalPanel();
 			HorizontalPanel panel2 = new HorizontalPanel();
 
+			emailBox.addKeyPressHandler(new KeyPressHandler() {
+				@Override
+				public void onKeyPress(KeyPressEvent event) {
+					if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER){
+						sendButton.click();
+					}
+				}
+			});
+			
 			Label label1 = new Label("Invite a friend by E-mail: ");
 			label1.getElement().getStyle().setProperty("fontSize", "large");
 			label1.getElement().getStyle().setProperty("fontFamily", "Lobster");
-			Button sendButton = new Button("Send");
+			label1.addStyleName(style.unselectable());
+			
 			sendButton.setStyleName(style.topButton());
 			sendButton.addClickHandler(new ClickHandler() {
 				@Override
@@ -181,6 +197,7 @@ public class Graphics extends Composite implements Presenter.View {
 			Label label2 = new Label("Or use: ");
 			label2.getElement().getStyle().setProperty("fontSize", "large");
 			label2.getElement().getStyle().setProperty("fontFamily", "Lobster");
+			label2.addStyleName(style.unselectable());
 			Button autoMatchButton = new Button("Auto Match");
 			autoMatchButton.setStyleName(style.topButton());
 			autoMatchButton.addClickHandler(new ClickHandler() {

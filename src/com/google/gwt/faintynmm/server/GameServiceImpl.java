@@ -60,15 +60,7 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 			}
 			System.out.println("Match id: " + matchId);
 
-			OfyService.ofy().transact(new VoidWork() {
-
-				@Override
-				public void vrun() {
-
-				}
-
-			});
-			// Notify players of the new match.
+			// Update players of the new match.
 			Player blackPlayer = OfyService.ofy().load()
 					.key(Key.create(Player.class, blackPlayerId)).now();
 			Player whitePlayer = OfyService.ofy().load()
@@ -79,15 +71,15 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 			if (whitePlayer == null) {
 				whitePlayer = new Player(whitePlayerId, 0);
 			}
-			sendMessage(blackPlayerId, "!black!" + whitePlayerId + "!"
-					+ matchId);
-			sendMessage(blackPlayerId, DEFAULT_STATE);
-			sendMessage(whitePlayerId, "!white!" + blackPlayerId + "!"
-					+ matchId);
-			sendMessage(whitePlayerId, DEFAULT_STATE);
 			blackPlayer.getMatchIds().add(matchId);
 			whitePlayer.getMatchIds().add(matchId);
-
+			
+			// Send new match to both players.
+			sendMessage(blackPlayerId, "!black!" + whitePlayerId + "!"
+					+ matchId);
+			sendMessage(blackPlayerId, matchId + "!" + DEFAULT_STATE);
+			sendMessage(whitePlayerId, matchId + "!" + DEFAULT_STATE);
+			
 			// Save the new match into datastore, and update player info.
 			Match match = new Match(matchId, blackPlayerId, whitePlayerId);
 			OfyService.ofy().save().entity(match).now();
@@ -116,14 +108,14 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 			String opponentId) {
 		System.out.println("Making move: " + newState + ", from: " + playerId
 				+ " to: " + opponentId);
-		sendMessage(opponentId, newState);
-		sendMessage(playerId, newState);
 		Match match = OfyService.ofy().load()
 				.key(Key.create(Match.class, matchId)).now();
 		match.setStateString(newState);
 		match.setLastUpdateDate(new Date());
 		match.switchTurn();
 		OfyService.ofy().save().entity(match).now();
+		sendMessage(opponentId, matchId + "!" + newState);
+		sendMessage(playerId, matchId + "!" + newState);
 	}
 
 	/**
@@ -163,19 +155,27 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 			System.err.println("No such match on server side!");
 			return;
 		}
+		if (match.getBlackPlayerId().equals(playerId)) {
+			sendMessage(playerId, "!black!" + match.getWhitePlayerId() + "!"
+					+ matchId);
+		} else if (match.getWhitePlayerId().equals(playerId)) {
+			sendMessage(playerId, "!white!" + match.getBlackPlayerId() + "!"
+					+ matchId);
+		}
 		sendMessage(match.getBlackPlayerId(),
-				"!black!" + match.getWhitePlayerId() + "!" + matchId);
-		sendMessage(match.getBlackPlayerId(), match.getStateString());
+				matchId + "!" + match.getStateString());
 		sendMessage(match.getWhitePlayerId(),
-				"!white!" + match.getBlackPlayerId() + "!" + matchId);
-		sendMessage(match.getWhitePlayerId(), match.getStateString());
+				matchId + "!" + match.getStateString());
+//		channelService.
 	}
 
 	public void sendMessage(String channelId, String message) {
 		Player player = OfyService.ofy().load()
 				.key(Key.create(Player.class, channelId)).now();
 		assert (player != null);
-		channelService.sendMessage(new ChannelMessage(channelId, message));
+		if (player.isConnectd()) {
+			channelService.sendMessage(new ChannelMessage(channelId, message));
+		}
 	}
 
 	/**

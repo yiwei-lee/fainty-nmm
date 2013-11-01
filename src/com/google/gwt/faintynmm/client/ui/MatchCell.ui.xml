@@ -39,6 +39,13 @@
 			border-radius: 32px;
 			margin: auto;
 		}
+		
+		.unselectable {
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
 	</ui:style>
 
 	<div
@@ -48,15 +55,15 @@
 			<div class='{style.piece}' style='background-color:{pieceColor}' />
 		</div>
 		<div class='{style.center}' style='clear:right'>
-			<div class='{style.label}'>
+			<div class='{style.label} {style.unselectable}'>
 				Oponent:
 				<ui:text from='{opponentId}' />
 			</div>
-			<div class='{style.label}'>
+			<div class='{style.label} {style.unselectable}'>
 				Current:
 				<ui:text from='{currentPlayerId}' />
 			</div>
-			<div class='{style.label}'>
+			<div class='{style.label} {style.unselectable}'>
 				Last update:
 				<ui:text from='{lastUpdateDate}' />
 			</div>
