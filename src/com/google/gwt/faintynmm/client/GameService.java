@@ -11,6 +11,8 @@ public interface GameService extends RemoteService {
 	public void initialize(String channelId);
 	public ArrayList<Match> getMatchList(String channelId);
 	public void startNewMatch(String blackPlayer, String whitePlayer);
+	public void startAutoMatch(String blackPlayer);
 	public void loadMatch(String playerId, String matchId);
 	public void changeState(String newState, String matchId, String playerId, String opponentId);
+	public void deleteMatch(String matchId, String playerId);
 }

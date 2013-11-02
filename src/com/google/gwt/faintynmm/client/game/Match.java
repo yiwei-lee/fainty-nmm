@@ -14,12 +14,14 @@ public class Match implements Serializable{
 	private static final long serialVersionUID = 1L;
 	@Id
 	String matchId;
-	Date lastUpdateDate = new Date();
+	Date lastUpdateDate;
 	String blackPlayerId;
 	String whitePlayerId;
+	boolean blackDeleteFlag;
+	boolean whiteDeleteFlag;
 	String currentPlayerId;
-	String stateString = "1109999000000000000000000000000";
-	Boolean isOver = false;
+	String stateString;
+	Boolean isOver;
 	String winner;
 
 	@SuppressWarnings("unused")
@@ -31,18 +33,24 @@ public class Match implements Serializable{
 		this.blackPlayerId = blackPlayerId;
 		this.whitePlayerId = whitePlayerId;
 		this.currentPlayerId = blackPlayerId;
+		lastUpdateDate = new Date();
+		stateString = "1109999000000000000000000000000";
+		isOver = false;
+		blackDeleteFlag = whiteDeleteFlag = false;
 	}
 
 	public boolean isInGame(String playerId){
-		return (blackPlayerId.equals(playerId) || whitePlayerId.equals(playerId));
+		boolean flag = false;
+		if (blackPlayerId.equals(playerId)){
+			flag = !blackDeleteFlag;
+		} else if (whitePlayerId.equals(playerId)){
+			flag = !whiteDeleteFlag;
+		}
+		return flag;
 	}
 	
 	public String getMatchId() {
 		return matchId;
-	}
-
-	public void setMatchId(String matchId) {
-		this.matchId = matchId;
 	}
 
 	public String getStateString() {
@@ -77,24 +85,12 @@ public class Match implements Serializable{
 		return currentPlayerId;
 	}
 
-	public void setCurrentPlayerId(String currentPlayerId) {
-		this.currentPlayerId = currentPlayerId;
-	}
-
 	public String getBlackPlayerId() {
 		return blackPlayerId;
 	}
 
-	public void setBlackPlayerId(String blackPlayerId) {
-		this.blackPlayerId = blackPlayerId;
-	}
-
 	public String getWhitePlayerId() {
 		return whitePlayerId;
-	}
-
-	public void setWhitePlayerId(String whitePlayerId) {
-		this.whitePlayerId = whitePlayerId;
 	}
 
 	public void setLastUpdateDate(Date lastUpdateDate) {
@@ -107,5 +103,14 @@ public class Match implements Serializable{
 		} else {
 			currentPlayerId = blackPlayerId;
 		}
+	}
+	
+	public boolean deleteMatch(Color color){
+		if (color == Color.BLACK){
+			blackDeleteFlag = true;
+		} else if (color == Color.WHITE){
+			whiteDeleteFlag = true;
+		}
+		return (blackDeleteFlag && whiteDeleteFlag);
 	}
 }

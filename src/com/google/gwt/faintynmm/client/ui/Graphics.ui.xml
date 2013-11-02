@@ -3,10 +3,10 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	<ui:style type='com.google.gwt.faintynmm.client.ui.Graphics.Style'>
 		@font-face {
-			font-family: 'Lobster';
+			font-family: 'Enso';
 			font-style: normal;
 			font-weight: normal;
-			src: url(./font/Lobster.otf);
+			src: url(./font/Enso.ttf);
 		}
 		
 		.glass {
@@ -17,14 +17,14 @@
 		.info {
 			height: 24px;
 			margin-bottom: 10px;
-			font-family: 'Lobster', serif;
+			font-family: 'NightBits', serif;
 			font-size: large;
 			overflow: hidden;
 			white-space: pre;
 		}
 		
 		.status {
-			font-family: 'Lobster', serif;
+			font-family: 'NightBits', serif;
 			color: Black;
 			font-size: large;
 		}
@@ -75,9 +75,9 @@
 		
 		.topButton {
 			height: 32px;
-			width: 110px;
+			width: 140px;
 			border-radius: 16px;
-			font-family: 'Lobster' serif;
+			font-family: 'NightBits' serif;
 			display: inline;
 			background: OrangeRed;
 			cursor: pointer;
@@ -138,7 +138,7 @@
 		.loadingText {
 			height: 40px;
 			color: White;
-			font-family: 'Lobster', serif;
+			font-family: 'NightBits', serif;
 			font-size: 40px;
 			margin-top: 10%;
 		}
@@ -149,12 +149,19 @@
 			-ms-user-select: none;
 			user-select: none;
 		}
+		
+		.matchInfo {
+			font-family: 'NightBits', serif;
+			font-size: large;
+			white-space: pre;
+		}
 	</ui:style>
 	<g:HTMLPanel addStyleNames='{style.unselectable}'>
 		<g:HorizontalPanel spacing='20' styleName='{style.center}'>
 			<g:Button ui:field='startNewMatch' styleName='{style.topButton}'>Start New Match</g:Button>
 			<g:Button ui:field='loadMatch' styleName='{style.topButton}'>Load Match</g:Button>
 		</g:HorizontalPanel>
+		<g:Label ui:field='matchInfo' addStyleNames='{style.matchInfo} {style.center}'>Not in match</g:Label>
 		<g:HorizontalPanel spacing='10' styleName='{style.centerPanel}'>
 			<g:FlowPanel addStyleNames='{style.left}'>
 				<g:Label addStyleNames='{style.info}'>Black</g:Label>

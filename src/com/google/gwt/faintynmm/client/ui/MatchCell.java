@@ -12,9 +12,9 @@ import com.google.gwt.faintynmm.client.game.Match;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.uibinder.client.UiRenderer;
+import com.google.gwt.user.client.Window;
 
 public class MatchCell extends AbstractCell<Match> {
-	// This can be compared to UiBinder --> here where all magic is done
 	public interface Renderer extends UiRenderer {
 		void render(SafeHtmlBuilder sb, String opponentId,
 				String currentPlayerId, String pieceColor, String lastUpdateDate);
@@ -39,6 +39,8 @@ public class MatchCell extends AbstractCell<Match> {
 		uiRenderer.onBrowserEvent(this, event, parent, value);
 		if (event.getType().equals(BrowserEvents.DBLCLICK)) {
 			presenter.loadMatch(value);
+		} else if (event.getType().equals(BrowserEvents.CLICK)){
+			event.preventDefault();
 		}
 	}
 
@@ -68,9 +70,11 @@ public class MatchCell extends AbstractCell<Match> {
 				pieceColor, lastUpdateDate);
 	}
 
-	@UiHandler({ "abandon" })
-	void onAbandonPersonClicked(ClickEvent event, Element parent, Match value) {
-//		Graphics.showWarning("Do you want to abandon : " + value.getMatchId()+"?", left, top);
+	@UiHandler({ "delete" })
+	void onDeleteMatchClicked(ClickEvent event, Element parent, Match value) {
+		if (Window.confirm("Do you really want to delete the match?")){
+			presenter.deleteMatch(value.getMatchId());
+		}
 	}
 
 	public String getPlayerId() {

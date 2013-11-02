@@ -301,6 +301,8 @@ public class Presenter {
 		graphics.setTurn(null);
 		graphics.setPhase(0);
 		graphics.setPieceStat("9999");
+		opponentId = matchId = null;
+		playerColor = null;
 	}
 
 	public void start() {
@@ -346,7 +348,7 @@ public class Presenter {
 			System.out.println("Not current game: ignore.");
 			return;
 		} else {
-			System.out.println("Parsing: "+stateString);
+			System.out.println("Parsing: " + stateString);
 		}
 		char[] states = stateString.toCharArray();
 		int phase = Character.digit(states[0], 10);
@@ -456,7 +458,8 @@ public class Presenter {
 
 	private void writeToChannel() {
 		String newState = getStateString();
-		gameService.changeState(newState, matchId, playerId, opponentId, voidCallBack);
+		gameService.changeState(newState, matchId, playerId, opponentId,
+				voidCallBack);
 	}
 
 	public void startNewMatchGivenEmail(String opponentId) {
@@ -464,23 +467,26 @@ public class Presenter {
 	}
 
 	public void startNewMatchWithAutoMatch() {
-		// TODO;
+		gameService.startAutoMatch(playerId, voidCallBack);
 	}
 
 	public void loadMatch(Match match) {
 		if (match.getBlackPlayerId().equals(playerId)
 				|| match.getWhitePlayerId().equals(playerId)) {
-			gameService.loadMatch(playerId, match.getMatchId(), new AsyncCallback<Void>() {
-				@Override
-				public void onFailure(Throwable caught) {
-					System.err.println("Load match async callback error: "+caught.getMessage());
-				}
+			gameService.loadMatch(playerId, match.getMatchId(),
+					new AsyncCallback<Void>() {
+						@Override
+						public void onFailure(Throwable caught) {
+							System.err
+									.println("Load match async callback error: "
+											+ caught.getMessage());
+						}
 
-				@Override
-				public void onSuccess(Void result) {
-					hideMatchList();
-				}
-			});
+						@Override
+						public void onSuccess(Void result) {
+							hideMatchList();
+						}
+					});
 		} else {
 			System.err.println("It's not your match?!");
 		}
@@ -489,29 +495,20 @@ public class Presenter {
 	public void hideMatchList() {
 		graphics.hideMatchListDialog();
 	}
-	
-	 public void abandonMatch(Match match){
-		 // TODO
-	 }
 
-	public String getOponentId() {
-		return opponentId;
+	public void deleteMatch(String matchId) {
+		gameService.deleteMatch(matchId, playerId, voidCallBack);
+		graphics.hideMatchListDialog();
+		if (matchId.equals(this.matchId)){
+			// Clean up graphics cuz the match is deleted from this side.
+			reset();
+			graphics.resetMatchInfo();
+		}
 	}
 
-	public void setOponentId(String opponentId) {
+	public void updateMatchInfo(String opponentId, String matchId) {
 		this.opponentId = opponentId;
-	}
-
-	public String getMatchId() {
-		return matchId;
-	}
-
-	public void setMatchId(String matchId) {
 		this.matchId = matchId;
-	}
-
-	public void finishReceivingMsg() {
-		// TODO Auto-generated method stub
-		
+		graphics.updateMatchInfo(opponentId, matchId);
 	}
 }

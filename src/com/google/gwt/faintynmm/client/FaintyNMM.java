@@ -46,8 +46,8 @@ public class FaintyNMM implements EntryPoint {
 	 */
 	public void onModuleLoad() {
 		RootPanel.get("header").add(welcome);
-		loginService.login(GWT.getHostPageBaseURL(),
-//		loginService.login(GWT.getHostPageBaseURL()+"fainty-nmm.html?gwt.codesvr=127.0.0.1:9997",
+//		loginService.login(GWT.getHostPageBaseURL(),
+		loginService.login(GWT.getHostPageBaseURL()+"fainty-nmm.html?gwt.codesvr=127.0.0.1:9997",
 				new AsyncCallback<LoginInfo>() {
 					//
 					// This should not happen...
@@ -102,9 +102,6 @@ public class FaintyNMM implements EntryPoint {
 			@Override
 			public void onMessage(String msg) {
 				msg = msg.trim();
-				if (msg.equals(".")){
-					presenter.finishReceivingMsg();
-				}
 				System.out.println("Message received: "+msg);
 				String []parameters;
 				if (msg.startsWith("!")){
@@ -118,8 +115,7 @@ public class FaintyNMM implements EntryPoint {
 					if (parameters[0].startsWith("white")){
 						presenter.setPlayerColor(Color.WHITE);
 					}
-					presenter.setOponentId(parameters[1]);
-					presenter.setMatchId(parameters[2].substring(0, 16));
+					presenter.updateMatchInfo(parameters[1], parameters[2]);
 				} else {
 					parameters = msg.split("!");
 					presenter.parseStateString(parameters[0], parameters[1]);

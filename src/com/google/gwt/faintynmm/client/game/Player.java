@@ -19,6 +19,7 @@ public class Player {
 	public Player(String playerId, int connectedDevices) {
 		this.playerId = playerId;
 		this.connectedDeviceNumber = connectedDevices;
+		this.matchIds = new ArrayList<String>();
 	}
 
 	public String getPlayerId() {
@@ -44,7 +45,7 @@ public class Player {
 	public void incConnectedDeviceNumber() {
 		connectedDeviceNumber++;
 	}
-	
+
 	public void decConnectedDeviceNumber() {
 		connectedDeviceNumber--;
 	}

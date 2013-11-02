@@ -77,7 +77,7 @@ public class Graphics extends Composite implements Presenter.View {
 	@UiField
 	Style style;
 	@UiField
-	Label status, phase, blackUnplacedMen, whiteUnplacedMen, blackLeftMen,
+	Label matchInfo, status, phase, blackUnplacedMen, whiteUnplacedMen, blackLeftMen,
 			whiteLeftMen;
 	@UiField
 	Button startNewMatch, loadMatch;
@@ -125,7 +125,7 @@ public class Graphics extends Composite implements Presenter.View {
 			scrollPanel.setPixelSize(377, 400);
 			if (matches.size() == 0) {
 				Label label = new Label("You haven't played any match yet!");
-				label.getElement().getStyle().setProperty("fontFamily", "Lobster");
+				label.getElement().getStyle().setProperty("fontFamily", "NightBits");
 				label.getElement().getStyle().setProperty("fontSize", "large");
 				label.addStyleName(style.center());
 				scrollPanel.add(label);
@@ -172,7 +172,7 @@ public class Graphics extends Composite implements Presenter.View {
 			
 			Label label1 = new Label("Invite a friend by E-mail: ");
 			label1.getElement().getStyle().setProperty("fontSize", "large");
-			label1.getElement().getStyle().setProperty("fontFamily", "Lobster");
+			label1.getElement().getStyle().setProperty("fontFamily", "NightBits");
 			label1.addStyleName(style.unselectable());
 			
 			sendButton.setStyleName(style.topButton());
@@ -196,7 +196,7 @@ public class Graphics extends Composite implements Presenter.View {
 
 			Label label2 = new Label("Or use: ");
 			label2.getElement().getStyle().setProperty("fontSize", "large");
-			label2.getElement().getStyle().setProperty("fontFamily", "Lobster");
+			label2.getElement().getStyle().setProperty("fontFamily", "NightBits");
 			label2.addStyleName(style.unselectable());
 			Button autoMatchButton = new Button("Auto Match");
 			autoMatchButton.setStyleName(style.topButton());
@@ -343,6 +343,8 @@ public class Graphics extends Composite implements Presenter.View {
 	 */
 	public static void showWarning(String msg, int left, int top) {
 		WarningDialog warningDialog = new WarningDialog(msg);
+		warningDialog.setAnimationEnabled(true);
+		warningDialog.setAutoHideEnabled(true);
 		warningDialog.setPopupPosition(left, top);
 		warningDialog.show();
 	}
@@ -390,7 +392,7 @@ public class Graphics extends Composite implements Presenter.View {
 	@Override
 	public void setTurn(Color color) {
 		if (color == null) {
-			status.setText("---Not start yet---");
+			status.setText("");
 		} else {
 			if (color != presenter.getPlayerColor())
 				status.setText("---Your oponent's turn---");
@@ -471,5 +473,13 @@ public class Graphics extends Composite implements Presenter.View {
 		} else {
 			return WHITE_PIECE.getElement();
 		}
+	}
+
+	public void updateMatchInfo(String opponentId, String matchId) {
+		matchInfo.setText("Playing with : "+opponentId+"\nMatch ID : "+matchId);
+	}
+	
+	public void resetMatchInfo(){
+		matchInfo.setText("Not in match");
 	}
 }

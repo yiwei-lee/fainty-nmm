@@ -7,18 +7,18 @@
 
 	<ui:style>
 		@font-face {
-			font-family: 'Lobster';
+			font-family: 'Enso';
 			font-style: normal;
 			font-weight: ligther;
-			src: url(./font/Lobster.otf);
+			src: url(./font/Enso.ttf);
 		}
 		
 		.label {
-			font-family: 'Lobster', serif;
+			font-family: 'NightBits', serif;
 		}
 		
 		.anchor {
-			font-family: 'Lobster', serif;
+			font-family: 'NightBits', serif;
 			margin: auto;
 			color: Blue;
 			text-decoration: underline;
@@ -67,7 +67,7 @@
 				Last update:
 				<ui:text from='{lastUpdateDate}' />
 			</div>
-			<span ui:field='abandon' class='{style.anchor}'>Abandon</span>
+			<span ui:field='delete' class='{style.anchor}'>Delete</span>
 		</div>
 	</div>
 
