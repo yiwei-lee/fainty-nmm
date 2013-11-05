@@ -1,9 +1,9 @@
 /** Add css rules here for your application. */
 @font-face {
-	font-family: 'Enso';
+	font-family: 'NightBits';
 	font-style: normal;
 	font-weight: normal;
-	src: url(./font/Enso.ttf);
+	src: url(./font/NightBits.ttf);
 }
 
 html {
@@ -11,13 +11,13 @@ html {
 }
 
 h1 {
-	font-family: 'Enso', serif;
+	font-family: 'NightBits', serif;
 	font-size: 2em;
 	text-align: center;
 }
 
 .lobster {
-	font-family: 'Enso', serif;
+	font-family: 'NightBits', serif;
 	font-size: 1.5em;
 }
 

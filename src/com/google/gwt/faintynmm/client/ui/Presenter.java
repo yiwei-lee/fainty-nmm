@@ -1,11 +1,11 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
-
 import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.dom.client.MediaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DropEvent;
+import com.google.gwt.faintynmm.client.FaintyNMMMessages;
 import com.google.gwt.faintynmm.client.GameServiceAsync;
 import com.google.gwt.faintynmm.client.exception.InvalidMovementException;
 import com.google.gwt.faintynmm.client.exception.InvalidPlacementException;
@@ -108,12 +108,13 @@ public class Presenter {
 	};
 
 	public Presenter(GameServiceAsync gameService, String playerId) {
-		this.matchCell = new MatchCell(playerId, this);
 		this.graphics = new Graphics(this);
 		this.gameService = gameService;
 		this.playerId = playerId;
 		this.game = new Game();
+		this.matchCell = new MatchCell(playerId, this);
 		lastX = lastY = -1;
+		
 		//
 		// Initialize Audio objects. Different type of sources added to support
 		// different browsers.
@@ -510,5 +511,9 @@ public class Presenter {
 		this.opponentId = opponentId;
 		this.matchId = matchId;
 		graphics.updateMatchInfo(opponentId, matchId);
+	}
+
+	public FaintyNMMMessages getMessages() {
+		return graphics.getMessages();
 	}
 }

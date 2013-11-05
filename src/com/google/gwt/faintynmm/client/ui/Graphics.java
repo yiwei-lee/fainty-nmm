@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DragOverEvent;
@@ -15,6 +16,7 @@ import com.google.gwt.event.dom.client.DropHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.faintynmm.client.FaintyNMMMessages;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Match;
 import com.google.gwt.resources.client.CssResource;
@@ -43,6 +45,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class Graphics extends Composite implements Presenter.View {
 	private final Image BLACK_PIECE = new Image("image/blackpiece.gif");
 	private final Image WHITE_PIECE = new Image("image/whitepiece.gif");
+	private FaintyNMMMessages messages = GWT.create(FaintyNMMMessages.class);
 	private MatchListDialog matchListDialog;
 	private NewMatchDialog newMatchDialog;
 	private GraphicsUiBinder uiBinder = GWT.create(GraphicsUiBinder.class);
@@ -65,7 +68,7 @@ public class Graphics extends Composite implements Presenter.View {
 		String cell();
 
 		String glass();
-		
+
 		String unselectable();
 	}
 
@@ -77,8 +80,8 @@ public class Graphics extends Composite implements Presenter.View {
 	@UiField
 	Style style;
 	@UiField
-	Label matchInfo, status, phase, blackUnplacedMen, whiteUnplacedMen, blackLeftMen,
-			whiteLeftMen;
+	Label matchInfo, status, phase, blackLabel, whiteLabel, blackUnplacedMen,
+			whiteUnplacedMen, blackLeftMen, whiteLeftMen;
 	@UiField
 	Button startNewMatch, loadMatch;
 
@@ -122,10 +125,12 @@ public class Graphics extends Composite implements Presenter.View {
 
 		public void updateAndShow(MatchCell matchCell, ArrayList<Match> matches) {
 			ScrollPanel scrollPanel = new ScrollPanel();
+			scrollPanel.getElement().getStyle().setOverflowY(Overflow.SCROLL);
 			scrollPanel.setPixelSize(377, 400);
 			if (matches.size() == 0) {
 				Label label = new Label("You haven't played any match yet!");
-				label.getElement().getStyle().setProperty("fontFamily", "NightBits");
+				label.getElement().getStyle()
+						.setProperty("fontFamily", "NightBits");
 				label.getElement().getStyle().setProperty("fontSize", "large");
 				label.addStyleName(style.center());
 				scrollPanel.add(label);
@@ -148,33 +153,36 @@ public class Graphics extends Composite implements Presenter.View {
 	 */
 	private class NewMatchDialog extends DialogBox {
 		private final TextBox emailBox = new TextBox();
-		private final Button sendButton = new Button("Send");
-		
+		private final Button sendButton = new Button(messages.sendButtonMsg());
+
 		public NewMatchDialog() {
 			setModal(true);
 			setAutoHideEnabled(true);
 			setGlassEnabled(true);
 			setGlassStyleName(style.glass());
 			setAnimationEnabled(true);
-			
+
 			VerticalPanel panel = new VerticalPanel();
 			HorizontalPanel panel1 = new HorizontalPanel();
 			HorizontalPanel panel2 = new HorizontalPanel();
 
+			emailBox.getElement().getStyle()
+					.setProperty("fontFamily", "NightBits");
 			emailBox.addKeyPressHandler(new KeyPressHandler() {
 				@Override
 				public void onKeyPress(KeyPressEvent event) {
-					if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER){
+					if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
 						sendButton.click();
 					}
 				}
 			});
-			
-			Label label1 = new Label("Invite a friend by E-mail: ");
+
+			Label label1 = new Label(messages.inviteFriendMsg());
 			label1.getElement().getStyle().setProperty("fontSize", "large");
-			label1.getElement().getStyle().setProperty("fontFamily", "NightBits");
+			label1.getElement().getStyle()
+					.setProperty("fontFamily", "NightBits");
 			label1.addStyleName(style.unselectable());
-			
+
 			sendButton.setStyleName(style.topButton());
 			sendButton.addClickHandler(new ClickHandler() {
 				@Override
@@ -194,11 +202,12 @@ public class Graphics extends Composite implements Presenter.View {
 			panel1.setCellVerticalAlignment(sendButton,
 					HasVerticalAlignment.ALIGN_MIDDLE);
 
-			Label label2 = new Label("Or use: ");
+			Label label2 = new Label(messages.useAutoMatchMsg());
 			label2.getElement().getStyle().setProperty("fontSize", "large");
-			label2.getElement().getStyle().setProperty("fontFamily", "NightBits");
+			label2.getElement().getStyle()
+					.setProperty("fontFamily", "NightBits");
 			label2.addStyleName(style.unselectable());
-			Button autoMatchButton = new Button("Auto Match");
+			Button autoMatchButton = new Button(messages.automatchButtonMsg());
 			autoMatchButton.setStyleName(style.topButton());
 			autoMatchButton.addClickHandler(new ClickHandler() {
 				@Override
@@ -238,6 +247,15 @@ public class Graphics extends Composite implements Presenter.View {
 		matchListDialog = new MatchListDialog();
 		newMatchDialog = new NewMatchDialog();
 		grid.resize(7, 7);
+
+		//
+		// Set up internationalized strings.
+		matchInfo.setText(messages.matchInfoNullMsg());
+		startNewMatch.setText(messages.newMatchButtonMsg());
+		loadMatch.setText(messages.loadMatchButtonMsg());
+		blackLabel.setText(messages.black());
+		whiteLabel.setText(messages.white());
+
 		//
 		// Initialize the view, initialize all elements and put them into the
 		// grid.
@@ -354,10 +372,10 @@ public class Graphics extends Composite implements Presenter.View {
 		matchListDialog.updateAndShow(matchCell, matches);
 	}
 
-	public void hideMatchListDialog(){
+	public void hideMatchListDialog() {
 		matchListDialog.hide();
 	}
-	
+
 	@Override
 	public void setPiece(Color color, int x, int y) {
 		Piece piece = (Piece) ((SimplePanel) grid.getWidget(x, y)).getWidget();
@@ -395,9 +413,9 @@ public class Graphics extends Composite implements Presenter.View {
 			status.setText("");
 		} else {
 			if (color != presenter.getPlayerColor())
-				status.setText("---Your oponent's turn---");
+				status.setText(messages.statusOppoTurnMsg());
 			else
-				status.setText("---Your turn---");
+				status.setText(messages.statusOwnTurnMsg());
 		}
 	}
 
@@ -406,7 +424,7 @@ public class Graphics extends Composite implements Presenter.View {
 		if (phase == 0)
 			this.phase.setText("");
 		else
-			this.phase.setText("Phase " + phase);
+			this.phase.setText(messages.phaseMsg(Integer.toString(phase)));
 	}
 
 	public Piece getPiece(int i) {
@@ -416,28 +434,28 @@ public class Graphics extends Composite implements Presenter.View {
 	public void setPieceStat(String pieceStat) {
 		String fromText, toText;
 		fromText = blackUnplacedMen.getText();
-		toText = "Unplaced: " + pieceStat.substring(0, 1);
+		toText = messages.unplacedMenMsg(pieceStat.substring(0, 1));
 		if (!fromText.equals(toText)) {
 			InfoUpdateAnimation animation = new InfoUpdateAnimation(
 					blackUnplacedMen, fromText, toText);
 			animation.run(200);
 		}
 		fromText = blackLeftMen.getText();
-		toText = "Left: " + pieceStat.substring(1, 2);
+		toText = messages.leftMenMsg(pieceStat.substring(1, 2));
 		if (!fromText.equals(toText)) {
 			InfoUpdateAnimation animation = new InfoUpdateAnimation(
 					blackLeftMen, fromText, toText);
 			animation.run(200);
 		}
 		fromText = whiteUnplacedMen.getText();
-		toText = "Unplaced: " + pieceStat.substring(2, 3);
+		toText = messages.unplacedMenMsg(pieceStat.substring(2, 3));
 		if (!fromText.equals(toText)) {
 			InfoUpdateAnimation animation = new InfoUpdateAnimation(
 					whiteUnplacedMen, fromText, toText);
 			animation.run(200);
 		}
 		fromText = whiteLeftMen.getText();
-		toText = "Left: " + pieceStat.substring(3, 4);
+		toText = messages.leftMenMsg(pieceStat.substring(3, 4));
 		if (!fromText.equals(toText)) {
 			InfoUpdateAnimation animation = new InfoUpdateAnimation(
 					whiteLeftMen, fromText, toText);
@@ -451,17 +469,17 @@ public class Graphics extends Composite implements Presenter.View {
 
 	public void setRemovalTurn(Color removalTurn) {
 		if (removalTurn != presenter.getPlayerColor())
-			status.setText("---Your oponent's turn to remove---");
+			status.setText(messages.statusOppoRemoveTurnMsg());
 		else
-			status.setText("---Your turn to remove---");
+			status.setText(messages.statusOwnRemoveTurnMsg());
 	}
 
 	private void setResult(Color gameResult) {
 		phase.setText("");
 		if (gameResult != presenter.getPlayerColor())
-			status.setText("You lost...");
+			status.setText(messages.statusLoserMsg());
 		else
-			status.setText("You won!");
+			status.setText(messages.statusWinnerMsg());
 		for (Piece piece : pieces) {
 			piece.setEnabled(false);
 		}
@@ -476,10 +494,14 @@ public class Graphics extends Composite implements Presenter.View {
 	}
 
 	public void updateMatchInfo(String opponentId, String matchId) {
-		matchInfo.setText("Playing with : "+opponentId+"\nMatch ID : "+matchId);
+		matchInfo.setText(messages.matchInfoMsg(opponentId, matchId));
+	}
+
+	public void resetMatchInfo() {
+		matchInfo.setText(messages.matchInfoNullMsg());
 	}
 	
-	public void resetMatchInfo(){
-		matchInfo.setText("Not in match");
+	public FaintyNMMMessages getMessages(){
+		return messages;
 	}
 }

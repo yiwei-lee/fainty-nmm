@@ -1,16 +1,17 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder">
-	<ui:with field='opponentId' type='java.lang.String' />
-	<ui:with field='currentPlayerId' type='java.lang.String' />
+	<ui:with field='opponentMsg' type='java.lang.String' />
+	<ui:with field='currentPlayerMsg' type='java.lang.String' />
 	<ui:with field='pieceColor' type='java.lang.String' />
-	<ui:with field='lastUpdateDate' type='java.lang.String' />
+	<ui:with field='lastUpdateDateMsg' type='java.lang.String' />
+	<ui:with field='deleteButton' type='java.lang.String' />
 
 	<ui:style>
 		@font-face {
-			font-family: 'Enso';
+			font-family: 'NightBits';
 			font-style: normal;
 			font-weight: ligther;
-			src: url(./font/Enso.ttf);
+			src: url(./font/NightBits.ttf);
 		}
 		
 		.label {
@@ -54,20 +55,19 @@
 			style='float:left; margin-right:4px;height:64px;width:64px;padding-top: 6.4px;'>
 			<div class='{style.piece}' style='background-color:{pieceColor}' />
 		</div>
-		<div class='{style.center}' style='clear:right'>
-			<div class='{style.label} {style.unselectable}'>
-				Oponent:
-				<ui:text from='{opponentId}' />
+		<div class='{style.center}  {style.unselectable}' style='clear:right'>
+			<div class='{style.label}'>
+				<ui:text from='{opponentMsg}' />
 			</div>
-			<div class='{style.label} {style.unselectable}'>
-				Current:
-				<ui:text from='{currentPlayerId}' />
+			<div class='{style.label}'>
+				<ui:text from='{currentPlayerMsg}' />
 			</div>
-			<div class='{style.label} {style.unselectable}'>
-				Last update:
-				<ui:text from='{lastUpdateDate}' />
+			<div class='{style.label}'>
+				<ui:text from='{lastUpdateDateMsg}' />
 			</div>
-			<span ui:field='delete' class='{style.anchor}'>Delete</span>
+			<span ui:field='delete' class='{style.anchor}'>
+				<ui:text from='{deleteButton}' />
+			</span>
 		</div>
 	</div>
 

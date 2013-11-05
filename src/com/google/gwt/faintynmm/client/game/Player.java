@@ -38,10 +38,6 @@ public class Player {
 		return matchIds;
 	}
 
-	public void setMatchIds(ArrayList<String> matchIds) {
-		this.matchIds = matchIds;
-	}
-
 	public void incConnectedDeviceNumber() {
 		connectedDeviceNumber++;
 	}

@@ -31,6 +31,7 @@ public class FaintyNMM implements EntryPoint {
 	private ChannelFactoryImpl channelFactory = new ChannelFactoryImpl();
 	private LoginServiceAsync loginService = GWT.create(LoginService.class);
 	private GameServiceAsync gameService = GWT.create(GameService.class);
+	private FaintyNMMMessages messages = GWT.create(FaintyNMMMessages.class);
 	private Socket socket;
 	private LoginInfo loginInfo = null;
 
@@ -40,14 +41,21 @@ public class FaintyNMM implements EntryPoint {
 	private Label welcome = new Label("Welcome!");
 	private Anchor signInLink = new Anchor("Login");
 	private Presenter presenter;
-	
+
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
+		GWT.log("Hello world!");
 		RootPanel.get("header").add(welcome);
-//		loginService.login(GWT.getHostPageBaseURL(),
-		loginService.login(GWT.getHostPageBaseURL()+"fainty-nmm.html?gwt.codesvr=127.0.0.1:9997",
+		RootPanel.get("appTitle").add(new Label(messages.faintyNMM()));
+		if (RootPanel.get("jsNotEnabledMsg") != null) {
+			RootPanel.get("jsNotEnabledMsg").add(
+					new Label(messages.jsNotEnabled()));
+		}
+		loginService.login(GWT.getHostPageBaseURL(),
+		// loginService.login(GWT.getHostPageBaseURL()
+		// + "fainty-nmm.html?gwt.codesvr=127.0.0.1:9997",
 				new AsyncCallback<LoginInfo>() {
 					//
 					// This should not happen...
@@ -63,12 +71,14 @@ public class FaintyNMM implements EntryPoint {
 					public void onSuccess(LoginInfo result) {
 						loginInfo = result;
 						if (loginInfo.isLoggedIn()) {
-							presenter = new Presenter(gameService, loginInfo.getEmailAddress());
-							RootPanel.get("gameContainer").add(presenter.getGraphics());
+							presenter = new Presenter(gameService, loginInfo
+									.getEmailAddress());
+							RootPanel.get("gameContainer").add(
+									presenter.getGraphics());
 							hideLogin();
 							createAndListenToChannel(loginInfo.getToken());
-							welcome.setText("Welcome: "
-									+ loginInfo.getNickname() + "!");
+							welcome.setText(messages.welcomeLabelMsg(loginInfo
+									.getNickname()));
 						} else {
 							showLogin();
 						}
@@ -86,7 +96,8 @@ public class FaintyNMM implements EntryPoint {
 	// Close channel and do some cleanup.
 	//
 	private void closeChannel() {
-		if (socket != null) socket.close();
+		if (socket != null)
+			socket.close();
 	}
 
 	//
@@ -102,17 +113,17 @@ public class FaintyNMM implements EntryPoint {
 			@Override
 			public void onMessage(String msg) {
 				msg = msg.trim();
-				System.out.println("Message received: "+msg);
-				String []parameters;
-				if (msg.startsWith("!")){
+				System.out.println("Message received: " + msg);
+				String[] parameters;
+				if (msg.startsWith("!")) {
 					parameters = msg.substring(1).split("!");
-					if (parameters.length != 3){
-						System.err.println("Error command: "+msg);
+					if (parameters.length != 3) {
+						System.err.println("Error command: " + msg);
 					}
-					if (parameters[0].equals("black")){
+					if (parameters[0].equals("black")) {
 						presenter.setPlayerColor(Color.BLACK);
 					}
-					if (parameters[0].startsWith("white")){
+					if (parameters[0].startsWith("white")) {
 						presenter.setPlayerColor(Color.WHITE);
 					}
 					presenter.updateMatchInfo(parameters[1], parameters[2]);

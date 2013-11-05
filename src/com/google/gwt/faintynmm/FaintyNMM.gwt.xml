@@ -6,9 +6,10 @@
 <module rename-to='faintynmm'>
 	<!-- Inherit the core Web Toolkit stuff. -->
 	<inherits name='com.google.gwt.user.User' />
+	<inherits name="com.google.gwt.i18n.I18N" />
 	<inherits name='com.google.gwt.appengine.channel.Channel' />
 	<inherits name='com.google.gwt.inject.Inject' />
-	
+
 	<!-- Inherit the default GWT style sheet. You can change -->
 	<!-- the theme of your GWT application by uncommenting -->
 	<!-- any one of the following lines. -->
@@ -19,10 +20,11 @@
 
 	<!-- Other module inherits -->
 	<inherits name="com.googlecode.objectify.Objectify" />
-	
+
 	<!-- Specify the app entry point class. -->
 	<entry-point class='com.google.gwt.faintynmm.client.FaintyNMM' />
-
+	<extend-property name="locale" values="zh_CN" />
+	
 	<!-- Specify the paths for translatable code -->
 	<source path='client' />
 	<source path='shared' />

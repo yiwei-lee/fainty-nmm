@@ -188,6 +188,7 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 
 	@Override
 	public void deleteMatch(String matchId, String playerId){
+		// Update match info, record which player choose to delete match.
 		Match match = OfyService.ofy().load().key(Key.create(Match.class, matchId)).now();
 		boolean deleted = false;
 		if (playerId.equals(match.getBlackPlayerId())){
@@ -197,6 +198,13 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 		} else {
 			return;
 		}
+		
+		// Delete match from player's match list.
+		Player player = OfyService.ofy().load().key(Key.create(Player.class, playerId)).now();
+		player.getMatchIds().remove(matchId);
+		OfyService.ofy().save().entity(player).now();
+		
+		// Update match in datastore.
 		if (deleted){
 			OfyService.ofy().delete().entity(match).now();
 		} else {

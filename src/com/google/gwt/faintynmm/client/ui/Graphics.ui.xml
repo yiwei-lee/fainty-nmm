@@ -3,10 +3,10 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	<ui:style type='com.google.gwt.faintynmm.client.ui.Graphics.Style'>
 		@font-face {
-			font-family: 'Enso';
+			font-family: 'NightBits';
 			font-style: normal;
 			font-weight: normal;
-			src: url(./font/Enso.ttf);
+			src: url(./font/NightBits.ttf);
 		}
 		
 		.glass {
@@ -158,20 +158,20 @@
 	</ui:style>
 	<g:HTMLPanel addStyleNames='{style.unselectable}'>
 		<g:HorizontalPanel spacing='20' styleName='{style.center}'>
-			<g:Button ui:field='startNewMatch' styleName='{style.topButton}'>Start New Match</g:Button>
-			<g:Button ui:field='loadMatch' styleName='{style.topButton}'>Load Match</g:Button>
+			<g:Button ui:field='startNewMatch' styleName='{style.topButton}'></g:Button>
+			<g:Button ui:field='loadMatch' styleName='{style.topButton}'></g:Button>
 		</g:HorizontalPanel>
-		<g:Label ui:field='matchInfo' addStyleNames='{style.matchInfo} {style.center}'>Not in match</g:Label>
+		<g:Label ui:field='matchInfo' addStyleNames='{style.matchInfo} {style.center}'></g:Label>
 		<g:HorizontalPanel spacing='10' styleName='{style.centerPanel}'>
 			<g:FlowPanel addStyleNames='{style.left}'>
-				<g:Label addStyleNames='{style.info}'>Black</g:Label>
+				<g:Label ui:field='blackLabel' addStyleNames='{style.info}'></g:Label>
 				<g:Label ui:field='blackUnplacedMen' addStyleNames='{style.info}'></g:Label>
 				<g:Label ui:field='blackLeftMen' addStyleNames='{style.info}'></g:Label>
 			</g:FlowPanel>
 			<g:Grid ui:field="grid" cellPadding='0' cellSpacing='0'
 				borderWidth='0' styleName='{style.board}'></g:Grid>
 			<g:FlowPanel addStyleNames='{style.right}'>
-				<g:Label addStyleNames='{style.info}'>White</g:Label>
+				<g:Label ui:field='whiteLabel' addStyleNames='{style.info}'></g:Label>
 				<g:Label ui:field='whiteUnplacedMen' addStyleNames='{style.info}'></g:Label>
 				<g:Label ui:field='whiteLeftMen' addStyleNames='{style.info}'></g:Label>
 			</g:FlowPanel>
