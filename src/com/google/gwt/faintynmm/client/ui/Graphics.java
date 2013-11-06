@@ -128,7 +128,7 @@ public class Graphics extends Composite implements Presenter.View {
 			scrollPanel.getElement().getStyle().setOverflowY(Overflow.SCROLL);
 			scrollPanel.setPixelSize(377, 400);
 			if (matches.size() == 0) {
-				Label label = new Label("You haven't played any match yet!");
+				Label label = new Label(messages.noMatchMsg());
 				label.getElement().getStyle()
 						.setProperty("fontFamily", "NightBits");
 				label.getElement().getStyle().setProperty("fontSize", "large");

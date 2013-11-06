@@ -9,7 +9,8 @@ import com.googlecode.objectify.annotation.Id;
 public class Player {
 	@Id
 	String playerId;
-	int connectedDeviceNumber;
+	int connectedDeviceNumber = 0;
+	double rating = 1500.0;
 	ArrayList<String> matchIds = new ArrayList<String>();
 
 	@SuppressWarnings("unused")
@@ -20,6 +21,7 @@ public class Player {
 		this.playerId = playerId;
 		this.connectedDeviceNumber = connectedDevices;
 		this.matchIds = new ArrayList<String>();
+		this.rating = 1500.0;
 	}
 
 	public String getPlayerId() {
@@ -48,5 +50,13 @@ public class Player {
 
 	public int getConnectedDeviceNumber() {
 		return connectedDeviceNumber;
+	}
+
+	public void setRating(double rating) {
+		this.rating = rating;
+	}
+
+	public double getRating() {
+		return this.rating;
 	}
 }

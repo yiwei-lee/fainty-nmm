@@ -1,6 +1,7 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.dom.client.MediaElement;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -96,8 +97,7 @@ public class Presenter {
 
 		@Override
 		public void onFailure(Throwable caught) {
-			System.err.println("Match list update callback error: "
-					+ caught.getMessage());
+			GWT.log("Match list update callback error: " + caught.getMessage());
 		}
 
 		@Override
@@ -114,7 +114,7 @@ public class Presenter {
 		this.game = new Game();
 		this.matchCell = new MatchCell(playerId, this);
 		lastX = lastY = -1;
-		
+
 		//
 		// Initialize Audio objects. Different type of sources added to support
 		// different browsers.
@@ -182,9 +182,11 @@ public class Presenter {
 				updateGraphicInfo();
 				writeToChannel();
 			} catch (WrongTurnException e) {
-				Graphics.showWarning(e.getMessage(), left, top);
+				GWT.log(e.getMessage());
+//				Graphics.showWarning(e.getMessage(), left, top);
 			} catch (InvalidRemovalException e) {
-				Graphics.showWarning(e.getMessage(), left, top);
+				GWT.log(e.getMessage());
+//				Graphics.showWarning(e.getMessage(), left, top);
 			}
 			return;
 		}
@@ -205,9 +207,11 @@ public class Presenter {
 				}
 				succeed = true;
 			} catch (WrongTurnException e) {
-				Graphics.showWarning(e.getMessage(), left, top);
+				GWT.log(e.getMessage());
+//				Graphics.showWarning(e.getMessage(), left, top);
 			} catch (InvalidPlacementException e) {
-				Graphics.showWarning(e.getMessage(), left, top);
+				GWT.log(e.getMessage());
+//				Graphics.showWarning(e.getMessage(), left, top);
 			}
 		} else {
 			if (lastX == -1) {
@@ -235,10 +239,12 @@ public class Presenter {
 						succeed = true;
 					} catch (WrongTurnException e) {
 						lastX = lastY = -1;
-						Graphics.showWarning(e.getMessage(), left, top);
+						GWT.log(e.getMessage());
+//						Graphics.showWarning(e.getMessage(), left, top);
 					} catch (InvalidMovementException e) {
 						lastX = lastY = -1;
-						Graphics.showWarning(e.getMessage(), left, top);
+						GWT.log(e.getMessage());
+//						Graphics.showWarning(e.getMessage(), left, top);
 					}
 				}
 				lastX = lastY = -1;
@@ -277,9 +283,11 @@ public class Presenter {
 			}
 			succeed = true;
 		} catch (WrongTurnException e) {
-			Graphics.showWarning(e.getMessage(), left, top);
+			GWT.log(e.getMessage());
+//			Graphics.showWarning(e.getMessage(), left, top);
 		} catch (InvalidMovementException e) {
-			Graphics.showWarning(e.getMessage(), left, top);
+			GWT.log(e.getMessage());
+//			Graphics.showWarning(e.getMessage(), left, top);
 		}
 		if (succeed) {
 			updateGraphicInfo();
@@ -478,8 +486,7 @@ public class Presenter {
 					new AsyncCallback<Void>() {
 						@Override
 						public void onFailure(Throwable caught) {
-							System.err
-									.println("Load match async callback error: "
+							GWT.log("Load match async callback error: "
 											+ caught.getMessage());
 						}
 
@@ -489,7 +496,7 @@ public class Presenter {
 						}
 					});
 		} else {
-			System.err.println("It's not your match?!");
+			GWT.log("It's not your match?!");
 		}
 	}
 
@@ -500,8 +507,8 @@ public class Presenter {
 	public void deleteMatch(String matchId) {
 		gameService.deleteMatch(matchId, playerId, voidCallBack);
 		graphics.hideMatchListDialog();
-		if (matchId.equals(this.matchId)){
-			// Clean up graphics cuz the match is deleted from this side.
+		if (matchId.equals(this.matchId)) {
+			// Clean up graphics because the match is deleted from this side.
 			reset();
 			graphics.resetMatchInfo();
 		}

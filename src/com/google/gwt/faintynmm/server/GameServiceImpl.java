@@ -6,21 +6,21 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-
 import com.google.appengine.api.channel.ChannelFailureException;
 import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.faintynmm.client.GameService;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Match;
 import com.google.gwt.faintynmm.client.game.Player;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.cmd.Query;
 
 @SuppressWarnings("serial")
-public class GameServiceImpl extends RemoteServiceServlet implements
+public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 		GameService {
 
 	// Default state when a game start.
@@ -36,20 +36,6 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 	private static ChannelService channelService = ChannelServiceFactory
 			.getChannelService();
 
-	@Override
-	public void initialize(String channelId) {
-		// TODO Auto-generated method stub
-	}
-
-	/**
-	 * Start a new match between two players.
-	 * 
-	 * @param blackPlayerId
-	 *            Id of black player.
-	 * @param whitePlayerId
-	 *            Id of white player.
-	 * 
-	 */
 	@Override
 	public void startNewMatch(String blackPlayerId, String whitePlayerId) {
 		try {
@@ -77,8 +63,9 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 
 			// Save the new match into datastore, and update player info.
 			Match match = new Match(matchId, blackPlayerId, whitePlayerId);
-			OfyService.ofy().save().entities(match, blackPlayer, whitePlayer).now();
-			
+			OfyService.ofy().save().entities(match, blackPlayer, whitePlayer)
+					.now();
+
 			// Send new match to both players.
 			sendMessage(blackPlayerId, "!black!" + whitePlayerId + "!"
 					+ matchId);
@@ -89,21 +76,21 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 			System.out.println("Channel Failure: " + e.getMessage());
 		}
 	}
-	
+
 	@Override
-	public void startAutoMatch(String blackPlayerId){
+	public void startAutoMatch(String blackPlayerId) {
 		// Get all players.
 		Query<Player> players = OfyService.ofy().load().type(Player.class);
 		// Find a decent opponent!
 		Player opponent = null;
-		for (Player player : players){
+		for (Player player : players) {
 			// TODO Don't have ratings yet.
-			if (!blackPlayerId.equals(player.getPlayerId())){
+			if (!blackPlayerId.equals(player.getPlayerId())) {
 				opponent = player;
 				break;
 			}
 		}
-		if (opponent != null){
+		if (opponent != null) {
 			startNewMatch(blackPlayerId, opponent.getPlayerId());
 		}
 	}
@@ -147,6 +134,9 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 	@Override
 	public ArrayList<Match> getMatchList(String playerId) {
 		ArrayList<Match> matchList = new ArrayList<Match>();
+		// Clear the session, otherwise the update date will not be correct:
+		// Objectify will fetch something in cache with an earlier update date.
+		OfyService.ofy().clear();
 		List<Match> allMatches = OfyService.ofy().load().type(Match.class)
 				.list();
 		for (Match match : allMatches) {
@@ -170,7 +160,7 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 		Match match = OfyService.ofy().load()
 				.key(Key.create(Match.class, matchId)).now();
 		if (match == null) {
-			System.err.println("No such match on server side!");
+			GWT.log("No such match on server side!");
 			return;
 		}
 		if (playerId.equals(match.getBlackPlayerId())) {
@@ -187,31 +177,33 @@ public class GameServiceImpl extends RemoteServiceServlet implements
 	}
 
 	@Override
-	public void deleteMatch(String matchId, String playerId){
+	public void deleteMatch(String matchId, String playerId) {
 		// Update match info, record which player choose to delete match.
-		Match match = OfyService.ofy().load().key(Key.create(Match.class, matchId)).now();
+		Match match = OfyService.ofy().load()
+				.key(Key.create(Match.class, matchId)).now();
 		boolean deleted = false;
-		if (playerId.equals(match.getBlackPlayerId())){
+		if (playerId.equals(match.getBlackPlayerId())) {
 			deleted = match.deleteMatch(Color.BLACK);
-		} else if (playerId.equals(match.getWhitePlayerId())){
+		} else if (playerId.equals(match.getWhitePlayerId())) {
 			deleted = match.deleteMatch(Color.WHITE);
 		} else {
 			return;
 		}
-		
+
 		// Delete match from player's match list.
-		Player player = OfyService.ofy().load().key(Key.create(Player.class, playerId)).now();
+		Player player = OfyService.ofy().load()
+				.key(Key.create(Player.class, playerId)).now();
 		player.getMatchIds().remove(matchId);
 		OfyService.ofy().save().entity(player).now();
-		
+
 		// Update match in datastore.
-		if (deleted){
+		if (deleted) {
 			OfyService.ofy().delete().entity(match).now();
 		} else {
 			OfyService.ofy().save().entity(match).now();
 		}
 	}
-	
+
 	public void sendMessage(String channelId, String message) {
 		Player player = OfyService.ofy().load()
 				.key(Key.create(Player.class, channelId)).now();

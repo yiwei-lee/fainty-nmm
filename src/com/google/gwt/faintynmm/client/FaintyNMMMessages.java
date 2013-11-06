@@ -3,7 +3,7 @@ package com.google.gwt.faintynmm.client;
 import com.google.gwt.i18n.client.Messages;
 
 public interface FaintyNMMMessages extends Messages {
-	@DefaultMessage("Fainty's Nine Men's Morris")
+	@DefaultMessage("Fainty''s Nine Men''s Morris")
 	String faintyNMM();
 
 	@DefaultMessage("Your web browser must have JavaScript enabled in order for this application to display correctly.")
@@ -12,6 +12,9 @@ public interface FaintyNMMMessages extends Messages {
 	@DefaultMessage("Welcome, {0}!")
 	String welcomeLabelMsg(String playerName);
 
+	@DefaultMessage("Please sign in to your Google Account.")
+	String loginMsg();
+	
 	@DefaultMessage("Start New Match")
 	String newMatchButtonMsg();
 
@@ -69,6 +72,9 @@ public interface FaintyNMMMessages extends Messages {
 	@DefaultMessage("Auto Match")
 	String automatchButtonMsg();
 
+	@DefaultMessage("You haven''t played any match yet!")
+	String noMatchMsg();
+	
 	@DefaultMessage("Delete")
 	String deleteButtonMsg();
 	
@@ -80,4 +86,7 @@ public interface FaintyNMMMessages extends Messages {
 	
 	@DefaultMessage("Last Update : {0}")
 	String lastUpdateDateMsg(String lastUpdateDate);
+	
+	@DefaultMessage("Do you really want to delete the match?")
+	String confirmDeleteMatchMsg();
 }

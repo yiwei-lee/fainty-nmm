@@ -8,9 +8,10 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.faintynmm.client.LoginInfo;
 import com.google.gwt.faintynmm.client.LoginService;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 
 @SuppressWarnings("serial")
-public class LoginServiceImpl extends RemoteServiceServlet implements
+public class LoginServiceImpl extends XsrfProtectedServiceServlet implements
 		LoginService {
 	private ChannelService channelService = ChannelServiceFactory.getChannelService();
 

@@ -3,12 +3,13 @@ package com.google.gwt.faintynmm.server;
 import com.google.gwt.faintynmm.client.GreetingService;
 import com.google.gwt.faintynmm.shared.FieldVerifier;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 
 /**
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class GreetingServiceImpl extends RemoteServiceServlet implements
+public class GreetingServiceImpl extends XsrfProtectedServiceServlet implements
 		GreetingService {
 
 	public String greetServer(String input) throws IllegalArgumentException {

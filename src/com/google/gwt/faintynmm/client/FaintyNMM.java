@@ -3,19 +3,21 @@ package com.google.gwt.faintynmm.client;
 import com.google.gwt.appengine.channel.client.Channel;
 import com.google.gwt.appengine.channel.client.ChannelError;
 import com.google.gwt.appengine.channel.client.ChannelFactoryImpl;
-import com.google.gwt.appengine.channel.client.Socket;
 import com.google.gwt.appengine.channel.client.SocketListener;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Display;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.faintynmm.client.game.Color;
-import com.google.gwt.faintynmm.client.ui.Graphics;
 import com.google.gwt.faintynmm.client.ui.Presenter;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.HasRpcToken;
+import com.google.gwt.user.client.rpc.RpcTokenException;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
+import com.google.gwt.user.client.rpc.XsrfToken;
+import com.google.gwt.user.client.rpc.XsrfTokenService;
+import com.google.gwt.user.client.rpc.XsrfTokenServiceAsync;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Label;
@@ -29,15 +31,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 public class FaintyNMM implements EntryPoint {
 
 	private ChannelFactoryImpl channelFactory = new ChannelFactoryImpl();
-	private LoginServiceAsync loginService = GWT.create(LoginService.class);
-	private GameServiceAsync gameService = GWT.create(GameService.class);
+	private LoginServiceAsync loginService;
+	private GameServiceAsync gameService;
 	private FaintyNMMMessages messages = GWT.create(FaintyNMMMessages.class);
-	private Socket socket;
 	private LoginInfo loginInfo = null;
 
 	private VerticalPanel loginPanel = new VerticalPanel();
-	private Label loginLabel = new Label(
-			"Please sign in to your Google Account.");
+	private Label loginLabel = new Label(messages.loginMsg());
 	private Label welcome = new Label("Welcome!");
 	private Anchor signInLink = new Anchor("Login");
 	private Presenter presenter;
@@ -46,58 +46,72 @@ public class FaintyNMM implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		GWT.log("Hello world!");
+		Cookies.setCookie("JSESSIONID", "JSESSIONID", null, null, "/", false);
 		RootPanel.get("header").add(welcome);
 		RootPanel.get("appTitle").add(new Label(messages.faintyNMM()));
 		if (RootPanel.get("jsNotEnabledMsg") != null) {
 			RootPanel.get("jsNotEnabledMsg").add(
 					new Label(messages.jsNotEnabled()));
 		}
-		loginService.login(GWT.getHostPageBaseURL(),
-		// loginService.login(GWT.getHostPageBaseURL()
-		// + "fainty-nmm.html?gwt.codesvr=127.0.0.1:9997",
-				new AsyncCallback<LoginInfo>() {
-					//
-					// This should not happen...
-					//
-					public void onFailure(Throwable error) {
-						Graphics.showWarning("WTH?!", 0, 0);
-					}
 
-					//
-					// Check if successfully login. If not, show login panel.
-					// Otherwise show game board.
-					//
-					public void onSuccess(LoginInfo result) {
-						loginInfo = result;
-						if (loginInfo.isLoggedIn()) {
-							presenter = new Presenter(gameService, loginInfo
-									.getEmailAddress());
-							RootPanel.get("gameContainer").add(
-									presenter.getGraphics());
-							hideLogin();
-							createAndListenToChannel(loginInfo.getToken());
-							welcome.setText(messages.welcomeLabelMsg(loginInfo
-									.getNickname()));
-						} else {
-							showLogin();
-						}
-					}
-				});
-		Window.addCloseHandler(new CloseHandler<Window>() {
-			@Override
-			public void onClose(CloseEvent<Window> event) {
-				closeChannel();
+		// Call XSRF protected login service.
+		XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT
+				.create(XsrfTokenService.class);
+		((ServiceDefTarget) xsrf).setServiceEntryPoint(GWT.getModuleBaseURL()
+				+ "xsrf");
+		xsrf.getNewXsrfToken(new AsyncCallback<XsrfToken>() {
+			public void onSuccess(XsrfToken token) {
+				loginService = GWT.create(LoginService.class);
+				gameService = GWT.create(GameService.class);
+				((HasRpcToken) loginService).setRpcToken(token);
+				((HasRpcToken) gameService).setRpcToken(token);
+				loginService.login(GWT.getHostPageBaseURL(),
+//				loginService.login(GWT.getHostPageBaseURL() + "fainty-nmm.html?gwt.codesvr=127.0.0.1:9997",
+						new AsyncCallback<LoginInfo>() {
+							//
+							// This should not happen...
+							//
+							public void onFailure(Throwable error) {
+								GWT.log("Login callback failed.");
+							}
+
+							//
+							// Check if successfully login. If not, show login
+							// panel.
+							// Otherwise show game board.
+							//
+							public void onSuccess(LoginInfo result) {
+								loginInfo = result;
+								if (loginInfo.isLoggedIn()) {
+									presenter = new Presenter(gameService,
+											loginInfo.getEmailAddress());
+									RootPanel.get("gameContainer").add(
+											presenter.getGraphics());
+									hideLogin();
+									createAndListenToChannel(loginInfo
+											.getToken());
+									welcome.setText(messages
+											.welcomeLabelMsg(loginInfo
+													.getNickname()));
+								} else {
+									showLogin();
+								}
+							}
+						});
+			}
+
+			public void onFailure(Throwable caught) {
+				try {
+					throw caught;
+				} catch (RpcTokenException e) {
+					GWT.log("Failed to call XSRF protected login service : "
+							+ e.getMessage());
+				} catch (Throwable e) {
+					GWT.log("Failed to call XSRF protected login service : "
+							+ e.getMessage());
+				}
 			}
 		});
-	}
-
-	//
-	// Close channel and do some cleanup.
-	//
-	private void closeChannel() {
-		if (socket != null)
-			socket.close();
 	}
 
 	//
@@ -105,7 +119,7 @@ public class FaintyNMM implements EntryPoint {
 	//
 	private void createAndListenToChannel(String token) {
 		Channel channel = channelFactory.createChannel(token);
-		socket = channel.open(new SocketListener() {
+		channel.open(new SocketListener() {
 			@Override
 			public void onOpen() {
 			}
@@ -118,7 +132,7 @@ public class FaintyNMM implements EntryPoint {
 				if (msg.startsWith("!")) {
 					parameters = msg.substring(1).split("!");
 					if (parameters.length != 3) {
-						System.err.println("Error command: " + msg);
+						GWT.log("Error command: " + msg);
 					}
 					if (parameters[0].equals("black")) {
 						presenter.setPlayerColor(Color.BLACK);

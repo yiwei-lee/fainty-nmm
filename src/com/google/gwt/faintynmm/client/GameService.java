@@ -5,10 +5,11 @@ import java.util.ArrayList;
 import com.google.gwt.faintynmm.client.game.Match;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.google.gwt.user.server.rpc.XsrfProtect;
 
+@XsrfProtect
 @RemoteServiceRelativePath("game")
 public interface GameService extends RemoteService {
-	public void initialize(String channelId);
 	public ArrayList<Match> getMatchList(String channelId);
 	public void startNewMatch(String blackPlayer, String whitePlayer);
 	public void startAutoMatch(String blackPlayer);
