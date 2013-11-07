@@ -89,4 +89,10 @@ public interface FaintyNMMMessages extends Messages {
 	
 	@DefaultMessage("Do you really want to delete the match?")
 	String confirmDeleteMatchMsg();
+	
+	@DefaultMessage("Surrender")
+	String surrenderButtonMsg();
+
+	@DefaultMessage("Do you really want to surrender this match?")
+	String surrenderMsg();
 }

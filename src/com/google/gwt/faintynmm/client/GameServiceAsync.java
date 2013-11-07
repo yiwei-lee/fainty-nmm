@@ -12,4 +12,5 @@ public interface GameServiceAsync {
 	public void loadMatch(String playerId, String matchId, AsyncCallback<Void> async);
 	public void changeState(String newState, String matchId, String playerId, String opponentId, AsyncCallback<Void> async);
 	public void deleteMatch(String matchId, String playerId, AsyncCallback<Void> async);
+	public void finishMatch(String matchId, String winnerId, String loserId, AsyncCallback<Void> async);
 }

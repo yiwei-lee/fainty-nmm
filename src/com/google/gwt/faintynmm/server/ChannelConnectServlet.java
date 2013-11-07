@@ -31,6 +31,6 @@ public class ChannelConnectServlet extends HttpServlet {
 		OfyService.ofy().save().entity(player).now();
 		
 		// For testing.
-		System.out.println(channelId+" connected. Connected device number: "+player.getConnectedDeviceNumber());
+//		System.out.println(channelId+" connected. Connected device number: "+player.getConnectedDeviceNumber());
 	}
 }

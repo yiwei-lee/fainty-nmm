@@ -65,8 +65,8 @@ public class FaintyNMM implements EntryPoint {
 				gameService = GWT.create(GameService.class);
 				((HasRpcToken) loginService).setRpcToken(token);
 				((HasRpcToken) gameService).setRpcToken(token);
-				loginService.login(GWT.getHostPageBaseURL(),
-//				loginService.login(GWT.getHostPageBaseURL() + "fainty-nmm.html?gwt.codesvr=127.0.0.1:9997",
+//				loginService.login(GWT.getHostPageBaseURL(),
+				loginService.login(GWT.getHostPageBaseURL() + "fainty-nmm.html?gwt.codesvr=127.0.0.1:9997",
 						new AsyncCallback<LoginInfo>() {
 							//
 							// This should not happen...
@@ -127,7 +127,6 @@ public class FaintyNMM implements EntryPoint {
 			@Override
 			public void onMessage(String msg) {
 				msg = msg.trim();
-				System.out.println("Message received: " + msg);
 				String[] parameters;
 				if (msg.startsWith("!")) {
 					parameters = msg.substring(1).split("!");

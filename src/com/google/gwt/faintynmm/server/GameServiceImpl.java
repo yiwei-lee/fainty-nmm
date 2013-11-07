@@ -6,11 +6,11 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+
 import com.google.appengine.api.channel.ChannelFailureException;
 import com.google.appengine.api.channel.ChannelMessage;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.faintynmm.client.GameService;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Match;
@@ -25,6 +25,11 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 
 	// Default state when a game start.
 	private final static String DEFAULT_STATE = "1109999000000000000000000000000";
+
+	// c value used in Glicko rating system.
+	private final double C = 17.5561721;
+	private final double Q = 0.00575646273;
+
 	// Comparator used to sort match list according to last update time.
 	private static Comparator<Match> matchComparator = new Comparator<Match>() {
 		@Override
@@ -81,13 +86,20 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 	public void startAutoMatch(String blackPlayerId) {
 		// Get all players.
 		Query<Player> players = OfyService.ofy().load().type(Player.class);
+		Player initPlayer = OfyService.ofy().load()
+				.key(Key.create(Player.class, blackPlayerId)).now();
+
 		// Find a decent opponent!
 		Player opponent = null;
+		double distance = 100000;
+		double rating = initPlayer.getRating();
 		for (Player player : players) {
-			// TODO Don't have ratings yet.
 			if (!blackPlayerId.equals(player.getPlayerId())) {
-				opponent = player;
-				break;
+				double currentDistance = Math.abs(player.getRating() - rating);
+				if (currentDistance < distance) {
+					distance = currentDistance;
+					opponent = player;
+				}
 			}
 		}
 		if (opponent != null) {
@@ -111,8 +123,8 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 	@Override
 	public void changeState(String newState, String matchId, String playerId,
 			String opponentId) {
-		System.out.println("Making move: " + newState + ", from: " + playerId
-				+ " to: " + opponentId);
+		// System.out.println("Making move: " + newState + ", from: " + playerId
+		// + " to: " + opponentId);
 		Match match = OfyService.ofy().load()
 				.key(Key.create(Match.class, matchId)).now();
 		match.setStateString(newState);
@@ -160,7 +172,6 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 		Match match = OfyService.ofy().load()
 				.key(Key.create(Match.class, matchId)).now();
 		if (match == null) {
-			GWT.log("No such match on server side!");
 			return;
 		}
 		if (playerId.equals(match.getBlackPlayerId())) {
@@ -229,5 +240,68 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 			sb.append(charSet[random.nextInt(charSet.length)]);
 		}
 		return sb.toString();
+	}
+
+	private int getDaysBetween(Date from, Date to) {
+		long aTime = from.getTime();
+		long bTime = to.getTime();
+		long adjust = 60 * 60 * 1000;
+		return (int) ((bTime - aTime + adjust) / (24 * 60 * 60 * 1000));
+	}
+
+	@Override
+	public void finishMatch(String matchId, String winnerId, String loserId) {
+		Match match = OfyService.ofy().load()
+				.key(Key.create(Match.class, matchId)).now();
+		Player winner = OfyService.ofy().load()
+				.key(Key.create(Player.class, winnerId)).now();
+		Player loser = OfyService.ofy().load()
+				.key(Key.create(Player.class, loserId)).now();
+		Date today = new Date();
+
+		// Calculate ratings.
+		double winnerRating = winner.getRating();
+		double loserRating = loser.getRating();
+		double winnerRD = Math.min(
+				Math.sqrt(winner.getRD() * winner.getRD() + C * C
+						* (getDaysBetween(winner.getLastMatchDate(), today))),
+				350.0);
+		double loserRD = Math.min(
+				Math.sqrt(loser.getRD() * loser.getRD() + C * C
+						* (getDaysBetween(loser.getLastMatchDate(), today))),
+				350.0);
+		double gWinnerRD = 1.0 / Math.sqrt(1.0 + 3 * Q * Q * winnerRD
+				* winnerRD / Math.PI / Math.PI);
+		double gLoserRD = 1.0 / Math.sqrt(1.0 + 3 * Q * Q * loserRD * loserRD
+				/ Math.PI / Math.PI);
+		double winChance = winnerRating / (winnerRating + loserRating);
+		double loseChance = 1.0 - winChance;
+		double winnerD = Q * Q * gLoserRD * gLoserRD * winChance * loseChance;
+		double loserD = Q * Q * gWinnerRD * gWinnerRD * winChance * loseChance;
+		double winnerNewRating = winnerRating + Q
+				/ (1.0 / winnerRD / winnerRD + winnerD) * gLoserRD * loseChance;
+		double loserNewRating = loserRating + Q
+				/ (1.0 / loserRD / loserRD + loserD) * gWinnerRD * -loseChance;
+		double winnerNewRD = Math
+				.sqrt(1.0 / (1.0 / winnerRD / winnerRD + winnerD));
+		double loserNewRD = Math
+				.sqrt(1.0 / (1.0 / loserRD / loserRD + loserD));
+
+		// Update ratings in datastore.
+		winner.setRating(winnerNewRating);
+		winner.setRD(winnerNewRD);
+		winner.setLastMatchDate(today);
+		loser.setRating(loserNewRating);
+		loser.setRD(loserNewRD);
+		loser.setLastMatchDate(today);
+		match.setWinner(winnerId);
+		match.setIsOver(true);
+		match.setLastUpdateDate(today);
+		OfyService.ofy().save().entities(match, winner, loser).now();
+
+		System.out.println("Winner new rating : " + winnerNewRating + " , "
+				+ winnerNewRD);
+		System.out.println("Loser new rating : " + loserNewRating + " , "
+				+ loserNewRD);
 	}
 }

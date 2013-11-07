@@ -83,7 +83,7 @@ public class Graphics extends Composite implements Presenter.View {
 	Label matchInfo, status, phase, blackLabel, whiteLabel, blackUnplacedMen,
 			whiteUnplacedMen, blackLeftMen, whiteLeftMen;
 	@UiField
-	Button startNewMatch, loadMatch;
+	Button startNewMatch, loadMatch, surrender;
 
 	/**
 	 * Pop up a warning dialog if a wrong move is taken by the player.
@@ -252,6 +252,7 @@ public class Graphics extends Composite implements Presenter.View {
 		// Set up internationalized strings.
 		matchInfo.setText(messages.matchInfoNullMsg());
 		startNewMatch.setText(messages.newMatchButtonMsg());
+		surrender.setText(messages.surrenderButtonMsg());
 		loadMatch.setText(messages.loadMatchButtonMsg());
 		blackLabel.setText(messages.black());
 		whiteLabel.setText(messages.white());
@@ -343,6 +344,12 @@ public class Graphics extends Composite implements Presenter.View {
 			@Override
 			public void onClick(ClickEvent event) {
 				presenter.loadMatchList();
+			}
+		});
+		surrender.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				presenter.surrender();
 			}
 		});
 		setPieceStat("9999");
@@ -474,7 +481,7 @@ public class Graphics extends Composite implements Presenter.View {
 			status.setText(messages.statusOwnRemoveTurnMsg());
 	}
 
-	private void setResult(Color gameResult) {
+	public void setResult(Color gameResult) {
 		phase.setText("");
 		if (gameResult != presenter.getPlayerColor())
 			status.setText(messages.statusLoserMsg());

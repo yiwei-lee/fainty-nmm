@@ -176,9 +176,10 @@
 				<g:Label ui:field='whiteLeftMen' addStyleNames='{style.info}'></g:Label>
 			</g:FlowPanel>
 		</g:HorizontalPanel>
-		<g:FlowPanel>
+		<g:FlowPanel styleName='{style.center}'>
 			<g:Label ui:field="phase" addStyleNames='{style.status} {style.center}'></g:Label>
 			<g:Label ui:field="status" addStyleNames='{style.status} {style.center}'></g:Label>
+			<g:Button ui:field="surrender" styleName='{style.topButton}'></g:Button>
 		</g:FlowPanel>
 	</g:HTMLPanel>
 </ui:UiBinder> 

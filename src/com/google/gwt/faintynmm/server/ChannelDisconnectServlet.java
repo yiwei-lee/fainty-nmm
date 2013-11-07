@@ -27,6 +27,6 @@ public class ChannelDisconnectServlet extends HttpServlet {
 		OfyService.ofy().save().entity(player).now();
 
 		// For testing.
-		System.out.println(playerId + " disconnected. Connected device number: "+player.getConnectedDeviceNumber());
+//		System.out.println(playerId + " disconnected. Connected device number: "+player.getConnectedDeviceNumber());
 	}
 }

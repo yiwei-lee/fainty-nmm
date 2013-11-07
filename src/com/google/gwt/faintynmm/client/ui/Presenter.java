@@ -1,6 +1,7 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AudioElement;
 import com.google.gwt.dom.client.MediaElement;
@@ -16,6 +17,7 @@ import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Game;
 import com.google.gwt.faintynmm.client.game.Match;
 import com.google.gwt.media.client.Audio;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -79,6 +81,7 @@ public class Presenter {
 	private Color playerColor;
 	private GameServiceAsync gameService;
 	private int lastX, lastY;
+	private boolean practiceMode;
 	private String playerId, opponentId, matchId;
 	private ArrayList<Match> matchList;
 	private AsyncCallback<Void> voidCallBack = new AsyncCallback<Void>() {
@@ -114,6 +117,7 @@ public class Presenter {
 		this.game = new Game();
 		this.matchCell = new MatchCell(playerId, this);
 		lastX = lastY = -1;
+		practiceMode = false;
 
 		//
 		// Initialize Audio objects. Different type of sources added to support
@@ -180,13 +184,20 @@ public class Presenter {
 					}
 				}
 				updateGraphicInfo();
+				if (game.getWinner() != null) {
+					if (game.getWinner() == playerColor) {
+						finishMatch(playerId, opponentId);
+					} else {
+						finishMatch(opponentId, playerId);
+					}
+				}
 				writeToChannel();
 			} catch (WrongTurnException e) {
 				GWT.log(e.getMessage());
-//				Graphics.showWarning(e.getMessage(), left, top);
+				// Graphics.showWarning(e.getMessage(), left, top);
 			} catch (InvalidRemovalException e) {
 				GWT.log(e.getMessage());
-//				Graphics.showWarning(e.getMessage(), left, top);
+				// Graphics.showWarning(e.getMessage(), left, top);
 			}
 			return;
 		}
@@ -208,10 +219,10 @@ public class Presenter {
 				succeed = true;
 			} catch (WrongTurnException e) {
 				GWT.log(e.getMessage());
-//				Graphics.showWarning(e.getMessage(), left, top);
+				// Graphics.showWarning(e.getMessage(), left, top);
 			} catch (InvalidPlacementException e) {
 				GWT.log(e.getMessage());
-//				Graphics.showWarning(e.getMessage(), left, top);
+				// Graphics.showWarning(e.getMessage(), left, top);
 			}
 		} else {
 			if (lastX == -1) {
@@ -240,11 +251,11 @@ public class Presenter {
 					} catch (WrongTurnException e) {
 						lastX = lastY = -1;
 						GWT.log(e.getMessage());
-//						Graphics.showWarning(e.getMessage(), left, top);
+						// Graphics.showWarning(e.getMessage(), left, top);
 					} catch (InvalidMovementException e) {
 						lastX = lastY = -1;
 						GWT.log(e.getMessage());
-//						Graphics.showWarning(e.getMessage(), left, top);
+						// Graphics.showWarning(e.getMessage(), left, top);
 					}
 				}
 				lastX = lastY = -1;
@@ -284,10 +295,10 @@ public class Presenter {
 			succeed = true;
 		} catch (WrongTurnException e) {
 			GWT.log(e.getMessage());
-//			Graphics.showWarning(e.getMessage(), left, top);
+			// Graphics.showWarning(e.getMessage(), left, top);
 		} catch (InvalidMovementException e) {
 			GWT.log(e.getMessage());
-//			Graphics.showWarning(e.getMessage(), left, top);
+			// Graphics.showWarning(e.getMessage(), left, top);
 		}
 		if (succeed) {
 			updateGraphicInfo();
@@ -487,7 +498,7 @@ public class Presenter {
 						@Override
 						public void onFailure(Throwable caught) {
 							GWT.log("Load match async callback error: "
-											+ caught.getMessage());
+									+ caught.getMessage());
 						}
 
 						@Override
@@ -522,5 +533,21 @@ public class Presenter {
 
 	public FaintyNMMMessages getMessages() {
 		return graphics.getMessages();
+	}
+
+	public void surrender() {
+		if (Window.confirm(getMessages().surrenderMsg())) {
+			if (!practiceMode) {
+				finishMatch(opponentId, playerId);
+				if (playerColor == Color.BLACK)
+					graphics.setResult(Color.WHITE);
+				else
+					graphics.setResult(Color.BLACK);
+			}
+		}
+	}
+
+	private void finishMatch(String winnerId, String loserId) {
+		gameService.finishMatch(matchId, winnerId, loserId, voidCallBack);
 	}
 }
