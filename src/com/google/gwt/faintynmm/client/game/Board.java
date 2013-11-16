@@ -1,13 +1,33 @@
 package com.google.gwt.faintynmm.client.game;
 
+import java.util.Random;
+
 import com.google.gwt.faintynmm.client.exception.InvalidMovementException;
 import com.google.gwt.faintynmm.client.exception.InvalidPlacementException;
-
 import com.google.gwt.faintynmm.client.exception.InvalidRemovalException;
 
 public class Board {
 	private Color board[][];
-
+	private Random random = new Random();
+	private int places[][] = {
+			{0,0},{0,3},{0,6},
+			{1,1},{1,3},{1,5},
+			{2,2},{2,3},{2,4},
+			{3,0},{3,1},{3,2},{3,4},{3,5},{3,6},
+			{4,2},{4,3},{4,4},
+			{5,1},{5,3},{5,5},
+			{6,0},{6,3},{6,6}};
+	private int neighbours[][] = {
+			{-1, 9,-1, 1}, {-1, 4, 0, 2}, {-1,14, 1,-1},
+			{-1,10,-1, 4}, { 1, 7, 3, 5}, {-1,13, 4,-1},
+			{-1,11,-1, 7}, { 4,-1, 6, 8}, {-1,12, 7,-1},
+			{ 0,21,-1,10}, { 3,18, 9,11}, { 6,15,10,-1},
+			{ 8,17,-1,13}, { 5,20,12,14}, { 2,23,13,-1},
+			{11,-1,-1,16}, {-1,19,15,17}, {12,-1,16,-1},
+			{10,-1,-1,19}, {16,22,18,20}, {13,-1,19,-1},
+			{ 9,-1,-1,22}, {19,-1,21,23}, {14,-1,22,-1}
+	};
+	
 	public Board(int board[]) {
 		this.board = new Color[7][7];
 		for (int i = 0; i < 7; i++) {
@@ -200,6 +220,64 @@ public class Board {
 		} else {
 			return false;
 		}
+	}
+	
+	public int[] getRandomPlace(){
+		int i = random.nextInt(24);
+		while (board[places[i][0]][places[i][1]] != null){
+			i = random.nextInt(24);
+		}
+		return places[i];
+	}
+	
+	public int[] getRandomMove(){
+		boolean succeed = false;
+		int attempt = 0;
+		int []from = {-1,-1};
+		int []to = {-1,-1};
+		while (!succeed && attempt < 50){
+			int i = random.nextInt(24);
+			while (board[places[i][0]][places[i][1]] != Color.WHITE){
+				i = random.nextInt(24);
+			}
+			from = places[i];
+			for (int j = random.nextInt(4) ; j%4 != 0; j++){
+				int neighbour = neighbours[i][j];
+				if (neighbour != -1 && board[places[neighbour][0]][places[neighbour][1]] == null){
+					succeed = true;
+					to = places[neighbour];
+					break;
+				}
+			}
+			attempt++;
+		}
+		return new int[]{from[0], from[1], to[0], to[1]};
+	}
+	
+	public int[] getRandomFly(){
+		int []from = {-1,-1};
+		int []to = {-1,-1};
+		int i = random.nextInt(24);
+		
+		while (board[places[i][0]][places[i][1]] != Color.WHITE){
+			i = random.nextInt(24);
+		}
+		from = places[i];
+		i = random.nextInt(24);
+		while (board[places[i][0]][places[i][1]] != null){
+			i = random.nextInt(24);
+		}
+		to = places[i];
+		
+		return new int[]{from[0], from[1], to[0], to[1]};		
+	}
+	
+	public int[] getRandomRemove(){
+		int i = random.nextInt(24);
+		while (board[places[i][0]][places[i][1]] != Color.BLACK){
+			i = random.nextInt(24);
+		}
+		return places[i];
 	}
 	
 	public Color getMan(int x, int y) {

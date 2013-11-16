@@ -7,7 +7,6 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gwt.faintynmm.client.LoginInfo;
 import com.google.gwt.faintynmm.client.LoginService;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 
 @SuppressWarnings("serial")

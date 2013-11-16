@@ -17,9 +17,9 @@ import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Game;
 import com.google.gwt.faintynmm.client.game.Match;
 import com.google.gwt.media.client.Audio;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Widget;
 
 public class Presenter {
 	public interface View {
@@ -152,15 +152,15 @@ public class Presenter {
 	 *            the click event triggered by the button
 	 * @return void
 	 */
-	public void clickOn(int x, int y, ClickEvent event) {
-		if (!isMyTurn())
+	public void clickOn(int x, int y, ClickEvent event, boolean isAiTurn) {
+		if (!isMyTurn() && !isAiTurn)
 			return;
 		boolean succeed = false;
 		int phase = game.getPhase();
 		Color turn = game.getRemovalTurn();
-		Widget source = (Widget) event.getSource();
-		int left = source.getAbsoluteLeft() + 10;
-		int top = source.getAbsoluteTop() + 10;
+		// Widget source = (Widget) event.getSource();
+		// int left = source.getAbsoluteLeft() + 10;
+		// int top = source.getAbsoluteTop() + 10;
 		if (turn == null) {
 			turn = game.getTurn();
 		} else {
@@ -184,23 +184,26 @@ public class Presenter {
 					}
 				}
 				updateGraphicInfo();
-				if (game.getWinner() != null) {
+				if (game.getWinner() != null && !practiceMode) {
 					if (game.getWinner() == playerColor) {
 						finishMatch(playerId, opponentId);
 					} else {
 						finishMatch(opponentId, playerId);
 					}
 				}
-				writeToChannel();
+				if (!practiceMode) {
+					writeToChannel();
+				} else if (!isAiTurn && game.getWinner() == null) {
+					aiMakeMove();
+				}
 			} catch (WrongTurnException e) {
 				GWT.log(e.getMessage());
-				// Graphics.showWarning(e.getMessage(), left, top);
 			} catch (InvalidRemovalException e) {
 				GWT.log(e.getMessage());
-				// Graphics.showWarning(e.getMessage(), left, top);
 			}
 			return;
 		}
+		Color removalTurn = null;
 		if (phase == 1) {
 			try {
 				game.placeMan(turn, x, y);
@@ -210,7 +213,7 @@ public class Presenter {
 				moveSound.pause();
 				moveSound.setCurrentTime(0.0);
 				moveSound.play();
-				Color removalTurn = game.getRemovalTurn();
+				removalTurn = game.getRemovalTurn();
 				if (removalTurn != null) {
 					graphics.setRemovalTurn(removalTurn);
 				} else {
@@ -241,7 +244,7 @@ public class Presenter {
 						moveSound.pause();
 						moveSound.setCurrentTime(0.0);
 						moveSound.play();
-						Color removalTurn = game.getRemovalTurn();
+						removalTurn = game.getRemovalTurn();
 						if (removalTurn != null) {
 							graphics.setRemovalTurn(removalTurn);
 						} else {
@@ -264,18 +267,79 @@ public class Presenter {
 		graphics.setPhase(game.getPhase());
 		if (succeed) {
 			updateGraphicInfo();
-			writeToChannel();
+			if (!practiceMode) {
+				writeToChannel();
+			} else if (removalTurn == null && !isAiTurn) {
+				aiMakeMove();
+			}
 		}
 		return;
 	}
 
-	public void moveMan(int fromX, int fromY, int toX, int toY, DropEvent event) {
-		if (!isMyTurn())
+	private void aiMakeMove() {
+		//
+		// Make a random move!
+		//
+		new Timer(){
+			@Override
+			public void run() {
+				int phase = getPhase();
+				int[] move;
+				if (phase == 1) {
+					move = game.getBoard().getRandomPlace();
+					if (move[0] != -1) {
+						clickOn(move[0], move[1], null, true);
+					} else {
+						graphics.setResult(Color.BLACK);
+						return;
+					}
+				} else if (phase == 2) {
+					move = game.getBoard().getRandomMove();
+					if (move[0] != -1) {
+						moveMan(move[0], move[1], move[2], move[3], null, true);
+					} else {
+						graphics.setResult(Color.BLACK);
+						return;
+					}
+				} else {
+					if (game.getPieceStat().charAt(3) == '3')
+						move = game.getBoard().getRandomFly();
+					else {
+						move = game.getBoard().getRandomMove();
+					}
+					if (move[0] != -1) {
+						moveMan(move[0], move[1], move[2], move[3], null, true);
+					} else {
+						graphics.setResult(Color.BLACK);
+						return;
+					}
+				}
+			}
+		}.schedule(500);
+		//
+		// Remove is possible.
+		//
+		new Timer(){
+			@Override
+			public void run() {
+				int[] move;
+				if (game.getRemovalTurn() != null) {
+					move = game.getBoard().getRandomRemove();
+					clickOn(move[0], move[1], null, true);
+				}
+			}
+		}.schedule(1000);
+	}
+
+	public void moveMan(int fromX, int fromY, int toX, int toY,
+			DropEvent event, boolean isAiTurn) {
+		if (!isMyTurn() && !practiceMode)
 			return;
 		boolean succeed = false;
-		Widget source = (Widget) event.getSource();
-		int left = source.getAbsoluteLeft() + 10;
-		int top = source.getAbsoluteTop() + 10;
+		// Widget source = (Widget) event.getSource();
+		// int left = source.getAbsoluteLeft() + 10;
+		// int top = source.getAbsoluteTop() + 10;
+		Color removalTurn = null;
 		try {
 			Color from = game.getMan(fromX, fromY);
 			game.moveMan(from, fromX, fromY, toX, toY);
@@ -286,7 +350,7 @@ public class Presenter {
 			moveSound.pause();
 			moveSound.setCurrentTime(0.0);
 			moveSound.play();
-			Color removalTurn = game.getRemovalTurn();
+			removalTurn = game.getRemovalTurn();
 			if (removalTurn != null) {
 				graphics.setRemovalTurn(removalTurn);
 			} else {
@@ -302,7 +366,11 @@ public class Presenter {
 		}
 		if (succeed) {
 			updateGraphicInfo();
-			writeToChannel();
+			if (!practiceMode) {
+				writeToChannel();
+			} else if (removalTurn == null && !isAiTurn) {
+				aiMakeMove();
+			}
 		}
 		return;
 	}
@@ -483,14 +551,24 @@ public class Presenter {
 	}
 
 	public void startNewMatchGivenEmail(String opponentId) {
+		practiceMode = false;
 		gameService.startNewMatch(playerId, opponentId, voidCallBack);
 	}
 
 	public void startNewMatchWithAutoMatch() {
+		practiceMode = false;
 		gameService.startAutoMatch(playerId, voidCallBack);
 	}
 
+	public void startNewMatchWithAI() {
+		playerColor = Color.BLACK;
+		practiceMode = true;
+		updateMatchInfo("robot-89757", "Match with AI");
+		parseStateString("Match with AI", "1109999000000000000000000000000");
+	}
+
 	public void loadMatch(Match match) {
+		practiceMode = false;
 		if (match.getBlackPlayerId().equals(playerId)
 				|| match.getWhitePlayerId().equals(playerId)) {
 			gameService.loadMatch(playerId, match.getMatchId(),
@@ -539,15 +617,19 @@ public class Presenter {
 		if (Window.confirm(getMessages().surrenderMsg())) {
 			if (!practiceMode) {
 				finishMatch(opponentId, playerId);
-				if (playerColor == Color.BLACK)
-					graphics.setResult(Color.WHITE);
-				else
-					graphics.setResult(Color.BLACK);
 			}
+			if (playerColor == Color.BLACK)
+				graphics.setResult(Color.WHITE);
+			else
+				graphics.setResult(Color.BLACK);
 		}
 	}
 
 	private void finishMatch(String winnerId, String loserId) {
 		gameService.finishMatch(matchId, winnerId, loserId, voidCallBack);
+	}
+
+	public void setPracticeMode(boolean practiceMode) {
+		this.practiceMode = practiceMode;
 	}
 }

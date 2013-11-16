@@ -217,4 +217,8 @@ public class Game {
 		else
 			turn = Color.BLACK;
 	}
+	
+	public Board getBoard(){
+		return board;
+	}
 }

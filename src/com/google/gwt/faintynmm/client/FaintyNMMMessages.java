@@ -1,6 +1,7 @@
 package com.google.gwt.faintynmm.client;
 
 import com.google.gwt.i18n.client.Messages;
+import com.google.gwt.safehtml.shared.SafeHtml;
 
 public interface FaintyNMMMessages extends Messages {
 	@DefaultMessage("Fainty''s Nine Men''s Morris")
@@ -95,4 +96,7 @@ public interface FaintyNMMMessages extends Messages {
 
 	@DefaultMessage("Do you really want to surrender this match?")
 	String surrenderMsg();
+
+	@DefaultMessage("Play With AI")
+	SafeHtml playWithAiMsg();
 }

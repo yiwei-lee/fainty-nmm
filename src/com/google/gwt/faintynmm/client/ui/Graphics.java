@@ -191,6 +191,7 @@ public class Graphics extends Composite implements Presenter.View {
 					NewMatchDialog.this.hide();
 				}
 			});
+
 			panel1.add(label1);
 			panel1.add(emailBox);
 			panel1.add(sendButton);
@@ -216,8 +217,18 @@ public class Graphics extends Composite implements Presenter.View {
 					NewMatchDialog.this.hide();
 				}
 			});
+			Button aiButton = new Button(messages.playWithAiMsg());
+			aiButton.setStyleName(style.topButton());
+			aiButton.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					presenter.startNewMatchWithAI();
+					NewMatchDialog.this.hide();
+				}
+			});
 			panel2.add(label2);
 			panel2.add(autoMatchButton);
+			panel2.add(aiButton);
 			panel2.setStyleName(style.center());
 			panel2.setCellVerticalAlignment(label2,
 					HasVerticalAlignment.ALIGN_MIDDLE);
@@ -281,7 +292,7 @@ public class Graphics extends Composite implements Presenter.View {
 					piece.addClickHandler(new ClickHandler() {
 						@Override
 						public void onClick(ClickEvent event) {
-							presenter.clickOn(row, col, event);
+							presenter.clickOn(row, col, event, false);
 						}
 					});
 					//
@@ -320,7 +331,7 @@ public class Graphics extends Composite implements Presenter.View {
 								event.preventDefault();
 								presenter.moveMan(fromPiece.getX(),
 										fromPiece.getY(), piece.getX(),
-										piece.getY(), event);
+										piece.getY(), event, false);
 							}
 						}
 					});
@@ -490,6 +501,7 @@ public class Graphics extends Composite implements Presenter.View {
 		for (Piece piece : pieces) {
 			piece.setEnabled(false);
 		}
+		surrender.setEnabled(false);
 	}
 
 	private Element getImageElement(Color color) {
@@ -507,8 +519,8 @@ public class Graphics extends Composite implements Presenter.View {
 	public void resetMatchInfo() {
 		matchInfo.setText(messages.matchInfoNullMsg());
 	}
-	
-	public FaintyNMMMessages getMessages(){
+
+	public FaintyNMMMessages getMessages() {
 		return messages;
 	}
 }
