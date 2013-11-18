@@ -7,5 +7,5 @@ import com.google.gwt.user.server.rpc.XsrfProtect;
 @RemoteServiceRelativePath("login")
 @XsrfProtect
 public interface LoginService extends RemoteService{
-	public LoginInfo login(String url);
+	public String login(String userId);
 }

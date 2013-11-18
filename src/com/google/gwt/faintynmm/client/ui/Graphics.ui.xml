@@ -161,6 +161,7 @@
 			<g:Button ui:field='startNewMatch' styleName='{style.topButton}'></g:Button>
 			<g:Button ui:field='loadMatch' styleName='{style.topButton}'></g:Button>
 		</g:HorizontalPanel>
+		<g:Label ui:field='rating' addStyleNames='{style.matchInfo} {style.center}'></g:Label>
 		<g:Label ui:field='matchInfo' addStyleNames='{style.matchInfo} {style.center}'></g:Label>
 		<g:HorizontalPanel spacing='10' styleName='{style.centerPanel}'>
 			<g:FlowPanel addStyleNames='{style.left}'>

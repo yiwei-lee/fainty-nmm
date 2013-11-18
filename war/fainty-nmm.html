@@ -1,6 +1,6 @@
 <!doctype html>
 
-<html>
+<html xmlns:fb="http://ogp.me/ns/fb#">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
@@ -18,6 +18,8 @@
 </head>
 
 <body class='strip'>
+	<div id="fb-root"></div>
+	<script src="http://connect.facebook.net/en_US/all.js"></script>
 
 	<!-- OPTIONAL: include this if you want history support -->
 	<!--<iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1'
@@ -36,6 +38,13 @@
 	<div>
 		<h1 id="appTitle"></h1>
 		<div id="header" class="lobster"></div>
+		<!-- 		<div>
+			<fb:login-button width="100%"></fb:login-button>
+			<fb:like href="https://apps.facebook.com/faintynmm/"
+				layout="standard" action="like" show_faces="true" share="true"></fb:like>
+		</div> -->
+
+
 		<div id="gameContainer"></div>
 		<div id="footer" class="lobster"></div>
 	</div>

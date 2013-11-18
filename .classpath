@@ -9,5 +9,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Gin"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Objectify v4"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/gwt-gae-channel-2.0.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/facebook4gwt-1.0.8.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

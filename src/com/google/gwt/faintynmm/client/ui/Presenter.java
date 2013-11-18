@@ -1,6 +1,8 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AudioElement;
@@ -73,6 +75,7 @@ public class Presenter {
 		void setPhase(int phase);
 	}
 
+	private Logger logger = Logger.getLogger("presenter");
 	private final Audio moveSound = Audio.createIfSupported();
 	private final Audio killSound = Audio.createIfSupported();
 	private final MatchCell matchCell;
@@ -138,6 +141,8 @@ public class Presenter {
 		// Load matches from datastore.
 		//
 		// gameService.getMatchList(channelId, getMatchListCallback);
+		
+		setRating();
 	}
 
 	/**
@@ -591,6 +596,7 @@ public class Presenter {
 
 	public void hideMatchList() {
 		graphics.hideMatchListDialog();
+		graphics.enableSurrender(true);
 	}
 
 	public void deleteMatch(String matchId) {
@@ -626,10 +632,34 @@ public class Presenter {
 	}
 
 	private void finishMatch(String winnerId, String loserId) {
-		gameService.finishMatch(matchId, winnerId, loserId, voidCallBack);
+		gameService.finishMatch(matchId, winnerId, loserId, new AsyncCallback<Void>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				GWT.log("Failed to finish match.");
+			}
+
+			@Override
+			public void onSuccess(Void result) {
+				setRating();
+			}
+		});
 	}
 
 	public void setPracticeMode(boolean practiceMode) {
 		this.practiceMode = practiceMode;
+	}
+
+	public void setRating() {
+		gameService.getRating(playerId, new AsyncCallback<Double>() {
+			@Override
+			public void onFailure(Throwable caught) {
+				logger.log(Level.WARNING, "Failed to get rating for : "+playerId);
+			}
+			
+			@Override
+			public void onSuccess(Double result) {
+				graphics.setRating(result);
+			}
+		});
 	}
 }

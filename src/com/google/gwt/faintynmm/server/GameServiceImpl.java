@@ -26,7 +26,7 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 	// Default state when a game start.
 	private final static String DEFAULT_STATE = "1109999000000000000000000000000";
 
-	// c value used in Glicko rating system.
+	// c, q value used in Glicko rating system.
 	private final double C = 17.5561721;
 	private final double Q = 0.00575646273;
 
@@ -303,5 +303,11 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 				+ winnerNewRD);
 		System.out.println("Loser new rating : " + loserNewRating + " , "
 				+ loserNewRD);
+	}
+
+	@Override
+	public double getRating(String playerId) {
+		Player player = OfyService.ofy().load().key(Key.create(Player.class, playerId)).now();
+		return player.getRating();
 	}
 }

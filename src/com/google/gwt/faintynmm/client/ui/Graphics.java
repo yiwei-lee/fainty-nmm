@@ -1,7 +1,6 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Overflow;
@@ -19,6 +18,7 @@ import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.faintynmm.client.FaintyNMMMessages;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Match;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -80,7 +80,7 @@ public class Graphics extends Composite implements Presenter.View {
 	@UiField
 	Style style;
 	@UiField
-	Label matchInfo, status, phase, blackLabel, whiteLabel, blackUnplacedMen,
+	Label rating, matchInfo, status, phase, blackLabel, whiteLabel, blackUnplacedMen,
 			whiteUnplacedMen, blackLeftMen, whiteLeftMen;
 	@UiField
 	Button startNewMatch, loadMatch, surrender;
@@ -188,6 +188,7 @@ public class Graphics extends Composite implements Presenter.View {
 				@Override
 				public void onClick(ClickEvent event) {
 					presenter.startNewMatchGivenEmail(emailBox.getText());
+					surrender.setEnabled(true);
 					NewMatchDialog.this.hide();
 				}
 			});
@@ -214,6 +215,7 @@ public class Graphics extends Composite implements Presenter.View {
 				@Override
 				public void onClick(ClickEvent event) {
 					presenter.startNewMatchWithAutoMatch();
+					surrender.setEnabled(true);
 					NewMatchDialog.this.hide();
 				}
 			});
@@ -223,6 +225,7 @@ public class Graphics extends Composite implements Presenter.View {
 				@Override
 				public void onClick(ClickEvent event) {
 					presenter.startNewMatchWithAI();
+					surrender.setEnabled(true);
 					NewMatchDialog.this.hide();
 				}
 			});
@@ -519,8 +522,16 @@ public class Graphics extends Composite implements Presenter.View {
 	public void resetMatchInfo() {
 		matchInfo.setText(messages.matchInfoNullMsg());
 	}
+	
+	public void setRating(double rating){
+		this.rating.setText(messages.ratingMsg(NumberFormat.getFormat("#.00").format(rating)));
+	}
 
 	public FaintyNMMMessages getMessages() {
 		return messages;
+	}
+
+	public void enableSurrender(boolean b) {
+		surrender.setEnabled(b);
 	}
 }

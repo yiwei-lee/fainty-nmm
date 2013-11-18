@@ -8,10 +8,9 @@ public class LoginInfo implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private boolean loggedIn = false;
-	private String loginUrl;
-	private String logoutUrl;
-	private String emailAddress;
-	private String nickname;
+	private String userId;
+	private String userName;
+	private String accessToken;
 	private String token;
 	
 	public boolean isLoggedIn() {
@@ -22,43 +21,35 @@ public class LoginInfo implements Serializable {
 		this.loggedIn = loggedIn;
 	}
 
-	public String getLoginUrl() {
-		return loginUrl;
-	}
-
-	public void setLoginUrl(String loginUrl) {
-		this.loginUrl = loginUrl;
-	}
-
-	public String getLogoutUrl() {
-		return logoutUrl;
-	}
-
-	public void setLogoutUrl(String logoutUrl) {
-		this.logoutUrl = logoutUrl;
-	}
-
-	public String getEmailAddress() {
-		return emailAddress;
-	}
-
-	public void setEmailAddress(String emailAddress) {
-		this.emailAddress = emailAddress;
-	}
-
-	public String getNickname() {
-		return nickname;
-	}
-
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
-	}
-
 	public String getToken() {
 		return token;
 	}
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
 	}
 }

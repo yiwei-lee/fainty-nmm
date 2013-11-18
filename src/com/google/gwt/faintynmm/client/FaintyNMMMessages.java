@@ -13,7 +13,7 @@ public interface FaintyNMMMessages extends Messages {
 	@DefaultMessage("Welcome, {0}!")
 	String welcomeLabelMsg(String playerName);
 
-	@DefaultMessage("Please sign in to your Google Account.")
+	@DefaultMessage("Please sign in with your Facebook Account.")
 	String loginMsg();
 	
 	@DefaultMessage("Start New Match")
@@ -99,4 +99,7 @@ public interface FaintyNMMMessages extends Messages {
 
 	@DefaultMessage("Play With AI")
 	SafeHtml playWithAiMsg();
+
+	@DefaultMessage("Rating : {0}")
+	String ratingMsg(String rating);
 }
