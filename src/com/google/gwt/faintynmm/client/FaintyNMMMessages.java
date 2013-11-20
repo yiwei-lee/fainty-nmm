@@ -61,11 +61,11 @@ public interface FaintyNMMMessages extends Messages {
 	@DefaultMessage("White")
 	String white();
 
-	@DefaultMessage("Invite a friend via E-mail : ")
+	@DefaultMessage("Invite a friend on Facebook : ")
 	String inviteFriendMsg();
 
-	@DefaultMessage("Send")
-	String sendButtonMsg();
+	@DefaultMessage("Invite")
+	String inviteButtonMsg();
 
 	@DefaultMessage("Or use : ")
 	String useAutoMatchMsg();
@@ -102,4 +102,10 @@ public interface FaintyNMMMessages extends Messages {
 
 	@DefaultMessage("Rating : {0}")
 	String ratingMsg(String rating);
+	
+	@DefaultMessage("Play with {0}!")
+	String newGameButtonMsg(String friend);
+	
+	@DefaultMessage("Your have no friend playing this game. Invite them to play with you!")
+	String noFriendPlaynigMsg();
 }

@@ -15,22 +15,16 @@ import com.googlecode.objectify.Key;
 public class ChannelConnectServlet extends HttpServlet {
 	private ChannelService channelService = ChannelServiceFactory
 			.getChannelService();
-
+	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException {
 		ChannelPresence presence = channelService.parsePresence(req);
 		String channelId = presence.clientId();
 		
 		// Update datastore.
+		OfyService.ofy().clear();
 		Player player = OfyService.ofy().load().key(Key.create(Player.class, channelId)).now();
-		if (player == null){
-			player = new Player(channelId, 1);
-		} else {
-			player.incConnectedDeviceNumber();
-		}
+		player.incConnectedDeviceNumber();
 		OfyService.ofy().save().entity(player).now();
-		
-		// For testing.
-//		System.out.println(channelId+" connected. Connected device number: "+player.getConnectedDeviceNumber());
 	}
 }

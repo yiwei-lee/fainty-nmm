@@ -12,7 +12,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.dom.client.Style.VerticalAlign;
 import com.google.gwt.faintynmm.client.fb.FBCore;
-import com.google.gwt.faintynmm.client.fb.FBEvent;
+import com.google.gwt.faintynmm.client.fb.FBXfbml;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.ui.Presenter;
 import com.google.gwt.json.client.JSONObject;
@@ -51,7 +51,6 @@ public class FaintyNMM implements EntryPoint {
 	private Logger logger = Logger.getLogger("test_logger");
 
 	private FBCore fbCore;
-	private FBEvent fbEvent;
 
 	/**
 	 * This is the entry point method.
@@ -79,7 +78,6 @@ public class FaintyNMM implements EntryPoint {
 				((HasRpcToken) gameService).setRpcToken(token);
 
 				fbCore = new FBCore();
-				fbEvent = new FBEvent();
 				loginInfo = new LoginInfo();
 				fbCore.init("198848766966202", true, true, true);
 				fbCore.getLoginStatus(new AsyncCallback<JavaScriptObject>() {
@@ -92,7 +90,8 @@ public class FaintyNMM implements EntryPoint {
 					@Override
 					public void onSuccess(JavaScriptObject result) {
 						JSONObject js = new JSONObject(result);
-						String status = js.get("status").toString().replace("\"", "");
+						String status = js.get("status").toString()
+								.replace("\"", "");
 						logger.log(Level.INFO, "Login status: " + status);
 						if (status.equals("connected")) {
 							loginInfo.setLoggedIn(true);
@@ -103,62 +102,64 @@ public class FaintyNMM implements EntryPoint {
 							loginInfo.setAccessToken(authInfo
 									.get("accessToken").toString());
 							hideLogin();
-							loginService.login(loginInfo.getUserId(),
-									new AsyncCallback<String>() {
+							fbCore.api("/me?fields=first_name",
+									new AsyncCallback<JavaScriptObject>() {
+
 										@Override
 										public void onFailure(Throwable caught) {
 											logger.log(Level.WARNING,
-													"Failed to create channel in server side.");
+													"Failed to get user name.");
 										}
 
 										@Override
-										public void onSuccess(String result) {
-											logger.log(Level.INFO,
-													"Channel created in server side, token : "+result);
-											loginInfo.setToken(result);
-											fbCore.api(
-													"/me?fields=name",
-													new AsyncCallback<JavaScriptObject>() {
-
+										public void onSuccess(
+												JavaScriptObject result) {
+											JSONObject js = new JSONObject(
+													result);
+											logger.log(
+													Level.INFO,
+													"User name: "
+															+ js.get(
+																	"first_name")
+																	.toString());
+											loginInfo.setUserName(js
+													.get("first_name")
+													.toString()
+													.replace("\"", ""));
+											welcome.setText(messages
+													.welcomeLabelMsg(loginInfo
+															.getUserName()));
+											presenter = new Presenter(
+													gameService, loginInfo);
+											RootPanel.get("gameContainer").add(
+													presenter.getGraphics());
+											hideLogin();
+											loginService.login(
+													loginInfo.getUserId(), loginInfo.getUserName(),
+													new AsyncCallback<String>() {
 														@Override
 														public void onFailure(
 																Throwable caught) {
 															logger.log(
 																	Level.WARNING,
-																	"Failed to get user name.");
+																	"Failed to create channel in server side.");
 														}
 
 														@Override
 														public void onSuccess(
-																JavaScriptObject result) {
-															JSONObject js = new JSONObject(
-																	result);
+																String result) {
 															logger.log(
 																	Level.INFO,
-																	"User name: "
-																			+ js.get(
-																					"name")
-																					.toString());
+																	"Channel created in server side, token : "
+																			+ result);
 															loginInfo
-																	.setUserName(js
-																			.get("name")
-																			.toString().replace("\"", ""));
-															welcome.setText(messages
-																	.welcomeLabelMsg(loginInfo
-																			.getUserName()));
+																	.setToken(result);
 															createAndListenToChannel(loginInfo
 																	.getToken());
-															presenter = new Presenter(
-																	gameService,
-																	loginInfo
-																			.getUserId());
-															RootPanel
-																	.get("gameContainer")
-																	.add(presenter
-																			.getGraphics());
-															hideLogin();
+															presenter.setRating();
 														}
 													});
+
 										}
 									});
 						} else {
@@ -195,8 +196,8 @@ public class FaintyNMM implements EntryPoint {
 				String[] parameters;
 				if (msg.startsWith("!")) {
 					parameters = msg.substring(1).split("!");
-					if (parameters.length != 3) {
-						GWT.log("Error command: " + msg);
+					if (parameters.length != 4) {
+						logger.log(Level.WARNING, "Channel receive error command: " + msg);
 					}
 					if (parameters[0].equals("black")) {
 						presenter.setPlayerColor(Color.BLACK);
@@ -204,7 +205,7 @@ public class FaintyNMM implements EntryPoint {
 					if (parameters[0].startsWith("white")) {
 						presenter.setPlayerColor(Color.WHITE);
 					}
-					presenter.updateMatchInfo(parameters[1], parameters[2]);
+					presenter.updateMatchInfo(parameters[1], parameters[2], parameters[3]);
 				} else {
 					parameters = msg.split("!");
 					presenter.parseStateString(parameters[0], parameters[1]);
@@ -239,7 +240,6 @@ public class FaintyNMM implements EntryPoint {
 		HTML fbLoginButton = new HTML(
 				"<fb:login-button width=\"200\" onlogin=\"window.location.reload()\"></fb:login-button>");
 		SimplePanel fbButtonPanel = new SimplePanel();
-		fbButtonPanel.getElement().setId("fbloginpanel");
 		fbButtonPanel.setStyleName("loginAnchor");
 		fbButtonPanel.add(fbLoginButton);
 		loginPanel.add(fbButtonPanel);
@@ -248,7 +248,7 @@ public class FaintyNMM implements EntryPoint {
 		DOM.getElementById("loginContainer").getStyle()
 				.setDisplay(Display.BLOCK);
 		DOM.getElementById("loginDialog").getStyle().setDisplay(Display.BLOCK);
-		renderFacebookButton("fbloginpanel");
+		FBXfbml.parse(fbButtonPanel);
 	}
 
 	//
@@ -262,9 +262,4 @@ public class FaintyNMM implements EntryPoint {
 	public LoginInfo getLoginInfo() {
 		return loginInfo;
 	}
-
-	private static native void renderFacebookButton(String id) /*-{
-		// Render the FB button
-		$wnd.FB.XFBML.parse($doc.getElementById(id));
-	}-*/;
 }

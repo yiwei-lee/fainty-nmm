@@ -57,26 +57,19 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 					.key(Key.create(Player.class, blackPlayerId)).now();
 			Player whitePlayer = OfyService.ofy().load()
 					.key(Key.create(Player.class, whitePlayerId)).now();
-			if (blackPlayer == null) {
-				blackPlayer = new Player(blackPlayerId, 0);
-			}
-			if (whitePlayer == null) {
-				whitePlayer = new Player(whitePlayerId, 0);
-			}
 			blackPlayer.getMatchIds().add(matchId);
 			whitePlayer.getMatchIds().add(matchId);
 
 			// Save the new match into datastore, and update player info.
-			Match match = new Match(matchId, blackPlayerId, whitePlayerId);
+			Match match = new Match(matchId, blackPlayerId, whitePlayerId,
+					blackPlayer.getPlayerName(), whitePlayer.getPlayerName());
 			OfyService.ofy().save().entities(match, blackPlayer, whitePlayer)
 					.now();
 
 			// Send new match to both players.
 			sendMessage(blackPlayerId, "!black!" + whitePlayerId + "!"
-					+ matchId);
+					+ whitePlayer.getPlayerName() + "!" + matchId);
 			sendMessage(blackPlayerId, matchId + "!" + DEFAULT_STATE);
-			sendMessage(whitePlayerId, matchId + "!" + DEFAULT_STATE);
-			System.out.println("New match started.");
 		} catch (ChannelFailureException e) {
 			System.out.println("Channel Failure: " + e.getMessage());
 		}
@@ -122,14 +115,16 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 	 */
 	@Override
 	public void changeState(String newState, String matchId, String playerId,
-			String opponentId) {
+			String opponentId, boolean switchTurn) {
 		// System.out.println("Making move: " + newState + ", from: " + playerId
 		// + " to: " + opponentId);
 		Match match = OfyService.ofy().load()
 				.key(Key.create(Match.class, matchId)).now();
 		match.setStateString(newState);
 		match.setLastUpdateDate(new Date());
-		match.switchTurn();
+		if (switchTurn) {
+			match.switchTurn();
+		}
 		OfyService.ofy().save().entity(match).now();
 		sendMessage(opponentId, matchId + "!" + newState);
 		sendMessage(playerId, matchId + "!" + newState);
@@ -176,10 +171,10 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 		}
 		if (playerId.equals(match.getBlackPlayerId())) {
 			sendMessage(playerId, "!black!" + match.getWhitePlayerId() + "!"
-					+ matchId);
+					+ match.getWhitePlayerName() + "!" + matchId);
 		} else if (match.getWhitePlayerId().equals(playerId)) {
 			sendMessage(playerId, "!white!" + match.getBlackPlayerId() + "!"
-					+ matchId);
+					+ match.getBlackPlayerName() + "!" + matchId);
 		}
 		sendMessage(match.getBlackPlayerId(),
 				matchId + "!" + match.getStateString());
@@ -284,8 +279,7 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 				/ (1.0 / loserRD / loserRD + loserD) * gWinnerRD * -loseChance;
 		double winnerNewRD = Math
 				.sqrt(1.0 / (1.0 / winnerRD / winnerRD + winnerD));
-		double loserNewRD = Math
-				.sqrt(1.0 / (1.0 / loserRD / loserRD + loserD));
+		double loserNewRD = Math.sqrt(1.0 / (1.0 / loserRD / loserRD + loserD));
 
 		// Update ratings in datastore.
 		winner.setRating(winnerNewRating);
@@ -298,16 +292,15 @@ public class GameServiceImpl extends XsrfProtectedServiceServlet implements
 		match.setIsOver(true);
 		match.setLastUpdateDate(today);
 		OfyService.ofy().save().entities(match, winner, loser).now();
-
-		System.out.println("Winner new rating : " + winnerNewRating + " , "
-				+ winnerNewRD);
-		System.out.println("Loser new rating : " + loserNewRating + " , "
-				+ loserNewRD);
 	}
 
 	@Override
 	public double getRating(String playerId) {
-		Player player = OfyService.ofy().load().key(Key.create(Player.class, playerId)).now();
+		Player player = OfyService.ofy().load()
+				.key(Key.create(Player.class, playerId)).now();
+		// if (player == null)
+		// return 1500.0;
+		// else
 		return player.getRating();
 	}
 }

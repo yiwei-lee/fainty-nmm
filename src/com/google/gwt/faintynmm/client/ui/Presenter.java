@@ -11,6 +11,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.faintynmm.client.FaintyNMMMessages;
 import com.google.gwt.faintynmm.client.GameServiceAsync;
+import com.google.gwt.faintynmm.client.LoginInfo;
 import com.google.gwt.faintynmm.client.exception.InvalidMovementException;
 import com.google.gwt.faintynmm.client.exception.InvalidPlacementException;
 import com.google.gwt.faintynmm.client.exception.InvalidRemovalException;
@@ -79,6 +80,7 @@ public class Presenter {
 	private final Audio moveSound = Audio.createIfSupported();
 	private final Audio killSound = Audio.createIfSupported();
 	private final MatchCell matchCell;
+	private final FriendCell friendCell;
 	private Graphics graphics;
 	private Game game;
 	private Color playerColor;
@@ -86,6 +88,7 @@ public class Presenter {
 	private int lastX, lastY;
 	private boolean practiceMode;
 	private String playerId, opponentId, matchId;
+	// private String playerName, accessToken;
 	private ArrayList<Match> matchList;
 	private AsyncCallback<Void> voidCallBack = new AsyncCallback<Void>() {
 		@Override
@@ -103,7 +106,8 @@ public class Presenter {
 
 		@Override
 		public void onFailure(Throwable caught) {
-			GWT.log("Match list update callback error: " + caught.getMessage());
+			logger.log(Level.WARNING, "Match list update callback error: "
+					+ caught.getMessage());
 		}
 
 		@Override
@@ -113,12 +117,15 @@ public class Presenter {
 		}
 	};
 
-	public Presenter(GameServiceAsync gameService, String playerId) {
+	public Presenter(GameServiceAsync gameService, LoginInfo loginInfo) {
 		this.graphics = new Graphics(this);
 		this.gameService = gameService;
-		this.playerId = playerId;
+		this.playerId = loginInfo.getUserId();
+		// this.playerName = loginInfo.getUserName();
+		// this.accessToken = loginInfo.getAccessToken();
 		this.game = new Game();
 		this.matchCell = new MatchCell(playerId, this);
+		this.friendCell = new FriendCell(this);
 		lastX = lastY = -1;
 		practiceMode = false;
 
@@ -136,13 +143,6 @@ public class Presenter {
 		killSound.setVolume(1.0);
 		killSound.setPreload(MediaElement.PRELOAD_AUTO);
 		killSound.setControls(false);
-
-		//
-		// Load matches from datastore.
-		//
-		// gameService.getMatchList(channelId, getMatchListCallback);
-		
-		setRating();
 	}
 
 	/**
@@ -163,9 +163,6 @@ public class Presenter {
 		boolean succeed = false;
 		int phase = game.getPhase();
 		Color turn = game.getRemovalTurn();
-		// Widget source = (Widget) event.getSource();
-		// int left = source.getAbsoluteLeft() + 10;
-		// int top = source.getAbsoluteTop() + 10;
 		if (turn == null) {
 			turn = game.getTurn();
 		} else {
@@ -197,7 +194,7 @@ public class Presenter {
 					}
 				}
 				if (!practiceMode) {
-					writeToChannel();
+					writeToChannel(true);
 				} else if (!isAiTurn && game.getWinner() == null) {
 					aiMakeMove();
 				}
@@ -273,7 +270,7 @@ public class Presenter {
 		if (succeed) {
 			updateGraphicInfo();
 			if (!practiceMode) {
-				writeToChannel();
+				writeToChannel(removalTurn == null);
 			} else if (removalTurn == null && !isAiTurn) {
 				aiMakeMove();
 			}
@@ -285,7 +282,7 @@ public class Presenter {
 		//
 		// Make a random move!
 		//
-		new Timer(){
+		new Timer() {
 			@Override
 			public void run() {
 				int phase = getPhase();
@@ -324,7 +321,7 @@ public class Presenter {
 		//
 		// Remove is possible.
 		//
-		new Timer(){
+		new Timer() {
 			@Override
 			public void run() {
 				int[] move;
@@ -372,7 +369,7 @@ public class Presenter {
 		if (succeed) {
 			updateGraphicInfo();
 			if (!practiceMode) {
-				writeToChannel();
+				writeToChannel(true);
 			} else if (removalTurn == null && !isAiTurn) {
 				aiMakeMove();
 			}
@@ -549,15 +546,10 @@ public class Presenter {
 		graphics.setPieceStat(pieceStat);
 	}
 
-	private void writeToChannel() {
+	private void writeToChannel(boolean switchTurn) {
 		String newState = getStateString();
 		gameService.changeState(newState, matchId, playerId, opponentId,
-				voidCallBack);
-	}
-
-	public void startNewMatchGivenEmail(String opponentId) {
-		practiceMode = false;
-		gameService.startNewMatch(playerId, opponentId, voidCallBack);
+				switchTurn, voidCallBack);
 	}
 
 	public void startNewMatchWithAutoMatch() {
@@ -568,7 +560,7 @@ public class Presenter {
 	public void startNewMatchWithAI() {
 		playerColor = Color.BLACK;
 		practiceMode = true;
-		updateMatchInfo("robot-89757", "Match with AI");
+		updateMatchInfo("robot-89757", "robot-89757", "Match with AI");
 		parseStateString("Match with AI", "1109999000000000000000000000000");
 	}
 
@@ -580,8 +572,9 @@ public class Presenter {
 					new AsyncCallback<Void>() {
 						@Override
 						public void onFailure(Throwable caught) {
-							GWT.log("Load match async callback error: "
-									+ caught.getMessage());
+							logger.log(Level.WARNING,
+									"Load match async callback error: "
+											+ caught.getMessage());
 						}
 
 						@Override
@@ -590,7 +583,7 @@ public class Presenter {
 						}
 					});
 		} else {
-			GWT.log("It's not your match?!");
+			logger.log(Level.WARNING, "It's not your match?!");
 		}
 	}
 
@@ -609,10 +602,11 @@ public class Presenter {
 		}
 	}
 
-	public void updateMatchInfo(String opponentId, String matchId) {
+	public void updateMatchInfo(String opponentId, String opponentName,
+			String matchId) {
 		this.opponentId = opponentId;
 		this.matchId = matchId;
-		graphics.updateMatchInfo(opponentId, matchId);
+		graphics.updateMatchInfo(opponentName, matchId);
 	}
 
 	public FaintyNMMMessages getMessages() {
@@ -632,17 +626,18 @@ public class Presenter {
 	}
 
 	private void finishMatch(String winnerId, String loserId) {
-		gameService.finishMatch(matchId, winnerId, loserId, new AsyncCallback<Void>() {
-			@Override
-			public void onFailure(Throwable caught) {
-				GWT.log("Failed to finish match.");
-			}
+		gameService.finishMatch(matchId, winnerId, loserId,
+				new AsyncCallback<Void>() {
+					@Override
+					public void onFailure(Throwable caught) {
+						GWT.log("Failed to finish match.");
+					}
 
-			@Override
-			public void onSuccess(Void result) {
-				setRating();
-			}
-		});
+					@Override
+					public void onSuccess(Void result) {
+						setRating();
+					}
+				});
 	}
 
 	public void setPracticeMode(boolean practiceMode) {
@@ -653,13 +648,29 @@ public class Presenter {
 		gameService.getRating(playerId, new AsyncCallback<Double>() {
 			@Override
 			public void onFailure(Throwable caught) {
-				logger.log(Level.WARNING, "Failed to get rating for : "+playerId);
+				logger.log(Level.WARNING, "Failed to get rating for : "
+						+ playerId);
 			}
-			
+
 			@Override
 			public void onSuccess(Double result) {
 				graphics.setRating(result);
 			}
 		});
+	}
+
+	public void startNewMatchWithFriend(String friendId, String friendName) {
+		practiceMode = false;
+		graphics.hideNewMatchDialog();
+		graphics.enableSurrender(true);
+		gameService.startNewMatch(playerId, friendId, voidCallBack);
+	}
+
+	public MatchCell getMatchCell() {
+		return matchCell;
+	}
+
+	public FriendCell getFriendCell() {
+		return friendCell;
 	}
 }

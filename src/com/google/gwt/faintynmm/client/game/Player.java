@@ -10,6 +10,7 @@ import com.googlecode.objectify.annotation.Id;
 public class Player {
 	@Id
 	String playerId;
+	String playerName;
 	int connectedDeviceNumber = 0;
 	Date lastMatchDate;
 	double rating = 1500.0;
@@ -20,8 +21,9 @@ public class Player {
 	private Player() {
 	};
 
-	public Player(String playerId, int connectedDevices) {
+	public Player(String playerId, String playerName, int connectedDevices) {
 		this.playerId = playerId;
+		this.playerName = playerName;
 		this.connectedDeviceNumber = connectedDevices;
 		this.lastMatchDate = new Date();
 		this.matchIds = new ArrayList<String>();
@@ -50,7 +52,8 @@ public class Player {
 	}
 
 	public void decConnectedDeviceNumber() {
-		connectedDeviceNumber--;
+		if (connectedDeviceNumber > 0)
+			connectedDeviceNumber--;
 	}
 
 	public int getConnectedDeviceNumber() {
@@ -79,5 +82,9 @@ public class Player {
 
 	public void setLastMatchDate(Date lastMatchDate) {
 		this.lastMatchDate = lastMatchDate;
+	}
+
+	public String getPlayerName() {
+		return playerName;
 	}
 }

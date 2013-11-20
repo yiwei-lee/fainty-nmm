@@ -1,10 +1,12 @@
 package com.google.gwt.faintynmm.server;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import com.google.appengine.api.channel.ChannelPresence;
 import com.google.appengine.api.channel.ChannelService;
 import com.google.appengine.api.channel.ChannelServiceFactory;
@@ -22,11 +24,9 @@ public class ChannelDisconnectServlet extends HttpServlet {
 		String playerId = presence.clientId();
 
 		// Update datastore.
+		OfyService.ofy().clear();
 		Player player = OfyService.ofy().load().key(Key.create(Player.class, playerId)).now();
 		player.decConnectedDeviceNumber();
 		OfyService.ofy().save().entity(player).now();
-
-		// For testing.
-//		System.out.println(playerId + " disconnected. Connected device number: "+player.getConnectedDeviceNumber());
 	}
 }

@@ -1,7 +1,12 @@
 package com.google.gwt.faintynmm.client.ui;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -12,17 +17,18 @@ import com.google.gwt.event.dom.client.DragStartEvent;
 import com.google.gwt.event.dom.client.DragStartHandler;
 import com.google.gwt.event.dom.client.DropEvent;
 import com.google.gwt.event.dom.client.DropHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyPressEvent;
-import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.faintynmm.client.FaintyNMMMessages;
+import com.google.gwt.faintynmm.client.FriendInfo;
+import com.google.gwt.faintynmm.client.fb.FBCore;
 import com.google.gwt.faintynmm.client.game.Color;
 import com.google.gwt.faintynmm.client.game.Match;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.CellList;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -33,7 +39,6 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -43,6 +48,7 @@ import com.google.gwt.user.client.ui.Widget;
  * 
  */
 public class Graphics extends Composite implements Presenter.View {
+	private Logger logger = Logger.getLogger("graphics");
 	private final Image BLACK_PIECE = new Image("image/blackpiece.gif");
 	private final Image WHITE_PIECE = new Image("image/whitepiece.gif");
 	private FaintyNMMMessages messages = GWT.create(FaintyNMMMessages.class);
@@ -52,6 +58,8 @@ public class Graphics extends Composite implements Presenter.View {
 	private Presenter presenter;
 	private ArrayList<Piece> pieces = new ArrayList<Piece>();
 	private Piece fromPiece;
+
+	private FBCore fbCore = new FBCore();
 
 	//
 	// Styles in Graphics.ui.xml
@@ -80,8 +88,8 @@ public class Graphics extends Composite implements Presenter.View {
 	@UiField
 	Style style;
 	@UiField
-	Label rating, matchInfo, status, phase, blackLabel, whiteLabel, blackUnplacedMen,
-			whiteUnplacedMen, blackLeftMen, whiteLeftMen;
+	Label rating, matchInfo, status, phase, blackLabel, whiteLabel,
+			blackUnplacedMen, whiteUnplacedMen, blackLeftMen, whiteLeftMen;
 	@UiField
 	Button startNewMatch, loadMatch, surrender;
 
@@ -152,8 +160,8 @@ public class Graphics extends Composite implements Presenter.View {
 	 * Pop up window allowing player to find new match.
 	 */
 	private class NewMatchDialog extends DialogBox {
-		private final TextBox emailBox = new TextBox();
-		private final Button sendButton = new Button(messages.sendButtonMsg());
+		private final Button inviteButton = new Button(
+				messages.inviteButtonMsg());
 
 		public NewMatchDialog() {
 			setModal(true);
@@ -161,95 +169,142 @@ public class Graphics extends Composite implements Presenter.View {
 			setGlassEnabled(true);
 			setGlassStyleName(style.glass());
 			setAnimationEnabled(true);
-
-			VerticalPanel panel = new VerticalPanel();
-			HorizontalPanel panel1 = new HorizontalPanel();
-			HorizontalPanel panel2 = new HorizontalPanel();
-
-			emailBox.getElement().getStyle()
-					.setProperty("fontFamily", "NightBits");
-			emailBox.addKeyPressHandler(new KeyPressHandler() {
-				@Override
-				public void onKeyPress(KeyPressEvent event) {
-					if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
-						sendButton.click();
-					}
-				}
-			});
-
-			Label label1 = new Label(messages.inviteFriendMsg());
-			label1.getElement().getStyle().setProperty("fontSize", "large");
-			label1.getElement().getStyle()
-					.setProperty("fontFamily", "NightBits");
-			label1.addStyleName(style.unselectable());
-
-			sendButton.setStyleName(style.topButton());
-			sendButton.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					presenter.startNewMatchGivenEmail(emailBox.getText());
-					surrender.setEnabled(true);
-					NewMatchDialog.this.hide();
-				}
-			});
-
-			panel1.add(label1);
-			panel1.add(emailBox);
-			panel1.add(sendButton);
-			panel1.setStyleName(style.center());
-			panel1.setCellVerticalAlignment(label1,
-					HasVerticalAlignment.ALIGN_MIDDLE);
-			panel1.setCellVerticalAlignment(emailBox,
-					HasVerticalAlignment.ALIGN_MIDDLE);
-			panel1.setCellVerticalAlignment(sendButton,
-					HasVerticalAlignment.ALIGN_MIDDLE);
-
-			Label label2 = new Label(messages.useAutoMatchMsg());
-			label2.getElement().getStyle().setProperty("fontSize", "large");
-			label2.getElement().getStyle()
-					.setProperty("fontFamily", "NightBits");
-			label2.addStyleName(style.unselectable());
-			Button autoMatchButton = new Button(messages.automatchButtonMsg());
-			autoMatchButton.setStyleName(style.topButton());
-			autoMatchButton.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					presenter.startNewMatchWithAutoMatch();
-					surrender.setEnabled(true);
-					NewMatchDialog.this.hide();
-				}
-			});
-			Button aiButton = new Button(messages.playWithAiMsg());
-			aiButton.setStyleName(style.topButton());
-			aiButton.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					presenter.startNewMatchWithAI();
-					surrender.setEnabled(true);
-					NewMatchDialog.this.hide();
-				}
-			});
-			panel2.add(label2);
-			panel2.add(autoMatchButton);
-			panel2.add(aiButton);
-			panel2.setStyleName(style.center());
-			panel2.setCellVerticalAlignment(label2,
-					HasVerticalAlignment.ALIGN_MIDDLE);
-			panel2.setCellVerticalAlignment(autoMatchButton,
-					HasVerticalAlignment.ALIGN_MIDDLE);
-
-			panel.add(panel1);
-			panel.add(panel2);
-			setWidget(panel);
 		}
 
-		public void center() {
-			super.center();
-			int left = getPopupLeft();
-			int top = getPopupTop();
-			this.setPopupPosition(left, top / 2);
-			emailBox.setText("");
-			emailBox.setFocus(true);
+		public void updateAndShow() {
+			final VerticalPanel panel = new VerticalPanel();
+			final HorizontalPanel panel1 = new HorizontalPanel();
+			final HorizontalPanel panel2 = new HorizontalPanel();
+			final Label label1 = new Label(messages.inviteFriendMsg());
+
+			JavaScriptObject param = JsonUtils
+					.safeEval("{\"method\": \"fql.query\", "
+							+ "\"query\": \"select uid, name, pic_big from user where is_app_user = 1 and uid in (SELECT uid2 FROM friend WHERE uid1 = me())\"}");
+			fbCore.api(param, new AsyncCallback<JavaScriptObject>() {
+				@Override
+				public void onFailure(Throwable caught) {
+					logger.log(Level.SEVERE,
+							"Failed to load friends playing the same game.");
+				}
+
+				@Override
+				public void onSuccess(JavaScriptObject result) {
+					JSONObject js = new JSONObject(result);
+					if (js.size() == 0) {
+						Label noFriendsPlayingLabel = new Label(presenter
+								.getMessages().noFriendPlaynigMsg());
+						noFriendsPlayingLabel.getElement().getStyle()
+								.setProperty("fontFamily", "NightBits");
+						noFriendsPlayingLabel.getElement().getStyle()
+								.setProperty("fontSize", "large");
+						panel.add(noFriendsPlayingLabel);
+					} else {
+						CellList<FriendInfo> friendList = new CellList<FriendInfo>(
+								presenter.getFriendCell());
+						ArrayList<FriendInfo> friends = new ArrayList<FriendInfo>();
+						for (int i = 0; i < js.size(); i++) {
+							FriendInfo friend = new FriendInfo();
+							JSONObject temp = js.get(String.valueOf(i))
+									.isObject();
+							friend.friendId = temp.get("uid").isString()
+									.stringValue();
+							friend.friendName = temp.get("name").isString()
+									.stringValue();
+							friend.picScr = temp.get("pic_big").isString()
+									.stringValue();
+							friends.add(friend);
+						}
+						friendList.setRowData(friends);
+						panel.add(friendList);
+					}
+					logger.log(Level.INFO, js.toString());
+					label1.getElement().getStyle()
+							.setProperty("fontSize", "large");
+					label1.getElement().getStyle()
+							.setProperty("fontFamily", "NightBits");
+					label1.addStyleName(style.unselectable());
+
+					inviteButton.setStyleName(style.topButton());
+					inviteButton.addClickHandler(new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							NewMatchDialog.this.setAutoHideEnabled(false);
+							JavaScriptObject param = JsonUtils
+									.safeEval("{\"method\": \"apprequests\", "
+											+ "\"title\": \"Invite your friend to play with you together!\", "
+											+ "\"message\": \"Hey guys, just check this out!\"}");
+							fbCore.ui(param,
+									new AsyncCallback<JavaScriptObject>() {
+										@Override
+										public void onFailure(Throwable caught) {
+											logger.log(Level.SEVERE,
+													"Failed to send Facebook request.");
+										}
+
+										@Override
+										public void onSuccess(
+												JavaScriptObject result) {
+											NewMatchDialog.this.hide();
+										}
+									});
+						}
+					});
+
+					panel1.add(label1);
+					panel1.add(inviteButton);
+					panel1.setStyleName(style.center());
+					panel1.setCellVerticalAlignment(label1,
+							HasVerticalAlignment.ALIGN_MIDDLE);
+					panel1.setCellVerticalAlignment(inviteButton,
+							HasVerticalAlignment.ALIGN_MIDDLE);
+
+					Label label2 = new Label(messages.useAutoMatchMsg());
+					label2.getElement().getStyle()
+							.setProperty("fontSize", "large");
+					label2.getElement().getStyle()
+							.setProperty("fontFamily", "NightBits");
+					label2.addStyleName(style.unselectable());
+					Button autoMatchButton = new Button(messages
+							.automatchButtonMsg());
+					autoMatchButton.setStyleName(style.topButton());
+					autoMatchButton.addClickHandler(new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							presenter.startNewMatchWithAutoMatch();
+							surrender.setEnabled(true);
+							NewMatchDialog.this.hide();
+						}
+					});
+					Button aiButton = new Button(messages.playWithAiMsg());
+					aiButton.setStyleName(style.topButton());
+					aiButton.addClickHandler(new ClickHandler() {
+						@Override
+						public void onClick(ClickEvent event) {
+							presenter.startNewMatchWithAI();
+							surrender.setEnabled(true);
+							NewMatchDialog.this.hide();
+						}
+					});
+					panel2.add(label2);
+					panel2.add(autoMatchButton);
+					panel2.add(aiButton);
+					panel2.setStyleName(style.center());
+					panel2.setCellVerticalAlignment(label2,
+							HasVerticalAlignment.ALIGN_MIDDLE);
+					panel2.setCellVerticalAlignment(autoMatchButton,
+							HasVerticalAlignment.ALIGN_MIDDLE);
+
+					panel.add(panel1);
+					panel.add(panel2);
+					setWidget(panel);
+
+					NewMatchDialog.super.center();
+					int left = getPopupLeft();
+					int top = getPopupTop();
+					NewMatchDialog.this.setPopupPosition(left, top / 2);
+					NewMatchDialog.this.show();
+				}
+			});
 		}
 	}
 
@@ -267,6 +322,7 @@ public class Graphics extends Composite implements Presenter.View {
 		matchInfo.setText(messages.matchInfoNullMsg());
 		startNewMatch.setText(messages.newMatchButtonMsg());
 		surrender.setText(messages.surrenderButtonMsg());
+		surrender.setEnabled(false);
 		loadMatch.setText(messages.loadMatchButtonMsg());
 		blackLabel.setText(messages.black());
 		whiteLabel.setText(messages.white());
@@ -351,7 +407,7 @@ public class Graphics extends Composite implements Presenter.View {
 		startNewMatch.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				newMatchDialog.center();
+				newMatchDialog.updateAndShow();
 			}
 		});
 		loadMatch.addClickHandler(new ClickHandler() {
@@ -515,16 +571,17 @@ public class Graphics extends Composite implements Presenter.View {
 		}
 	}
 
-	public void updateMatchInfo(String opponentId, String matchId) {
-		matchInfo.setText(messages.matchInfoMsg(opponentId, matchId));
+	public void updateMatchInfo(String opponentName, String matchId) {
+		matchInfo.setText(messages.matchInfoMsg(opponentName, matchId));
 	}
 
 	public void resetMatchInfo() {
 		matchInfo.setText(messages.matchInfoNullMsg());
 	}
-	
-	public void setRating(double rating){
-		this.rating.setText(messages.ratingMsg(NumberFormat.getFormat("#.00").format(rating)));
+
+	public void setRating(double rating) {
+		this.rating.setText(messages.ratingMsg(NumberFormat.getFormat("#.00")
+				.format(rating)));
 	}
 
 	public FaintyNMMMessages getMessages() {
@@ -533,5 +590,9 @@ public class Graphics extends Composite implements Presenter.View {
 
 	public void enableSurrender(boolean b) {
 		surrender.setEnabled(b);
+	}
+
+	public void hideNewMatchDialog() {
+		newMatchDialog.hide();
 	}
 }

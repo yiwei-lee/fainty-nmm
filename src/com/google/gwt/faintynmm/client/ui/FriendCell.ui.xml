@@ -1,0 +1,77 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder">
+	<ui:with field='picSrc' type='java.lang.String' />
+	<ui:with field='friendName' type='java.lang.String' />
+	<ui:with field='newGameButton' type='java.lang.String' />
+
+	<ui:style>
+		@font-face {
+			font-family: 'NightBits';
+			font-style: normal;
+			font-weight: ligther;
+			src: url(./font/NightBits.ttf);
+		}
+		
+		.label {
+			font-family: 'NightBits', serif;
+		}
+		
+		.anchor {
+			font-family: 'NightBits', serif;
+			margin: auto;
+			text-align: center;
+			display: block;
+			cursor: pointer;
+		}
+		
+		.center {
+			test-align: cetner;
+			vertical-align: middle;
+			margin: auto;
+		}
+		
+		.piece {
+			height: 80%;
+			width: 80%;
+			border-style: inset;
+			border-radius: 32px;
+			margin: auto;
+		}
+		
+		.unselectable {
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+		
+		.topButton {
+			border-radius: 16px;
+			margin: auto;
+			background: OrangeRed;
+			outline-width: 0px;
+		}
+	</ui:style>
+
+	<div
+		style='border-style:none none solid none; height:64px; width:360px; vertical-align:middle; cursor:default;'>
+		<div
+			style='float:left; margin-right:4px;height:64px;width:64px;'>
+			<img src="{picSrc}" height="64" width="64" />
+		</div>
+
+		<div class='{style.center}  {style.unselectable}' style='clear:right;'>
+			<div class='{style.label}' style='height:42px;'>
+				<ui:text from='{friendName}' />
+			</div>
+
+			<div class='{style.topButton}'>
+				<span ui:field='newGame' class='{style.anchor}'>
+					<ui:text from='{newGameButton}' />
+				</span>
+			</div>
+		</div>
+	</div>
+
+
+</ui:UiBinder> 

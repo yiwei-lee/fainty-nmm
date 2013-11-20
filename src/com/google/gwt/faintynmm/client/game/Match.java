@@ -17,6 +17,8 @@ public class Match implements Serializable{
 	Date lastUpdateDate;
 	String blackPlayerId;
 	String whitePlayerId;
+	String blackPlayerName;
+	String whitePlayerName;
 	boolean blackDeleteFlag;
 	boolean whiteDeleteFlag;
 	String currentPlayerId;
@@ -28,10 +30,12 @@ public class Match implements Serializable{
 	private Match() {
 	};
 
-	public Match(String matchId, String blackPlayerId, String whitePlayerId) {
+	public Match(String matchId, String blackPlayerId, String whitePlayerId, String blackPlayerName, String whitePlayerName) {
 		this.matchId = matchId;
 		this.blackPlayerId = blackPlayerId;
 		this.whitePlayerId = whitePlayerId;
+		this.blackPlayerName = blackPlayerName;
+		this.whitePlayerName = whitePlayerName;
 		this.currentPlayerId = blackPlayerId;
 		lastUpdateDate = new Date();
 		stateString = "1109999000000000000000000000000";
@@ -93,6 +97,14 @@ public class Match implements Serializable{
 		return whitePlayerId;
 	}
 
+	public String getBlackPlayerName(){
+		return blackPlayerName;
+	}
+	
+	public String getWhitePlayerName(){
+		return whitePlayerName;
+	}
+	
 	public void setLastUpdateDate(Date lastUpdateDate) {
 		this.lastUpdateDate = lastUpdateDate;
 	}
