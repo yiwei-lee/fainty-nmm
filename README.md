@@ -6,7 +6,7 @@ This is an online Nine Men's Morris game built with Google Web Tookit (GWT) and 
 
 ### What is it? ###
 
-* Online version of the strategy board game: **Nine Men's Morris**.
+* Online version of the strategy board game: [**Nine Men's Morris**](http://en.wikipedia.org/wiki/Nine_Men's_Morris).
 * Support playing with friends or playing with dummy AI.
 * Players' as well as matches' information is stored in database.
 * Player can resume a match anytime he/she wants.
@@ -29,7 +29,7 @@ This is an online Nine Men's Morris game built with Google Web Tookit (GWT) and 
 
 ### Where this project is currently hosted ###
 
-* Currently this project is hosted on Google App Engine (the repository used to be on Google Code before Google shut it down.) 
+* Currently this project is hosted on Google App Engine (the repository used to be on Google Code before Google shut it down). 
 * [Try it on Google App Engine!](http://fainty-nmm.appspot.com/)
 
 ***
